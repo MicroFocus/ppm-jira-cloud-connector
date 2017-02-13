@@ -1,8 +1,11 @@
 package com.ppm.integration.agilesdk.connector.jira;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,12 +20,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ppm.integration.agilesdk.connector.jira.model.JIRAEpic;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRAIssue;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRAIssueType;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRAProject;
+import com.ppm.integration.agilesdk.connector.jira.model.JIRASprint;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRATempoIssue;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRATempoWorklog;
+import com.ppm.integration.agilesdk.connector.jira.model.JIRAVersion;
 import com.ppm.integration.agilesdk.connector.jira.rest.util.RestWrapper;
+import com.ppm.integration.agilesdk.connector.jira.util.JIRACustomIdFinder;
+import com.ppm.integration.agilesdk.pm.ExternalTask;
 
 public class JIRAService {
 	private String baseUri;
@@ -83,9 +91,14 @@ public class JIRAService {
 
 	public List<JIRAIssue> getIssues(String projectKey, Map<String, Boolean> map) {
 		List<JIRAIssue> list = new ArrayList<>();
+		String query = encodeUrl(baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map));
 
-		ClientResponse response = wrapper
-				.sendGet(baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map));
+		// if the Issues To Import contains only epic type
+		if (map.get("epic") && map.size() == 1) {
+			query = encodeUrl(baseUri + JIRAConstants.EPICS_SUFFIX + projectKey + getIssueQueryString(map));
+		}
+
+		ClientResponse response = wrapper.sendGet(query);
 
 		String jsonStr = response.getEntity(String.class);
 		try {
@@ -94,13 +107,15 @@ public class JIRAService {
 
 			JSONArray jsonIssues = jsonObj.getJSONArray("issues");
 			JSONObject schemas = jsonObj.getJSONObject("schema");
-			String sprintCustomId = findSprintCustomId(schemas);
-
+			String sprintCustomId = JIRACustomIdFinder.findId(schemas, JIRAConstants.JIRA_SPRINT_CUSTOM);
+			String epicLinkId = JIRACustomIdFinder.findId(schemas, JIRAConstants.JIRA_EPIC_LINK_CUSTOM);
 			for (int i = 0; i < jsonIssues.length(); i++) {
 				JSONObject fields = jsonIssues.getJSONObject(i).getJSONObject("fields");
+				String issueKey = jsonIssues.getJSONObject(i).getString("key");
 				boolean isSubTask = fields.getJSONObject("issuetype").getBoolean("subtask");
 				if (!isSubTask) {
-					JIRAIssue jiraIssue = resolveIssue(fields, false, null, null, null, sprintCustomId);
+					JIRAIssue jiraIssue = resolveIssue(fields, false, null, null, null, issueKey, sprintCustomId,
+							sprintCustomId);
 					list.add(jiraIssue);
 				}
 
@@ -108,6 +123,118 @@ public class JIRAService {
 		} catch (JSONException e) {
 
 		}
+		return list;
+	}
+
+	public List<JIRASprint> getSprintsWithIssues(String query) {
+		List<JIRASprint> sprints = new ArrayList<>();
+		ClientResponse response = wrapper.sendGet(query);
+		String jsonStr = response.getEntity(String.class);
+		try {
+
+			JSONObject jsonObj = new JSONObject(jsonStr);
+
+			JSONArray jsonIssues = jsonObj.getJSONArray("issues");
+			JSONObject schemas = jsonObj.getJSONObject("schema");
+			String sprintCustomId = JIRACustomIdFinder.findId(schemas, JIRAConstants.JIRA_SPRINT_CUSTOM);
+			String epicLinkCustomId = JIRACustomIdFinder.findId(schemas, JIRAConstants.JIRA_EPIC_LINK_CUSTOM);
+			Map<JIRASprint, List<JIRAIssue>> sprintMap = resolveIssue(jsonIssues, sprintCustomId, epicLinkCustomId);
+			Set<Entry<JIRASprint, List<JIRAIssue>>> set = sprintMap.entrySet();
+			for (Entry<JIRASprint, List<JIRAIssue>> e : set) {
+				JIRASprint js = e.getKey();
+				js.setIssues(e.getValue());
+				sprints.add(js);
+			}
+
+		} catch (JSONException e) {
+
+		}
+
+		return sprints;
+	}
+
+	public List<ExternalTask> getExternalTasks(String projectKey, Map<String, Boolean> map, String queryCase,
+			String attachedArg) {
+		List<ExternalTask> ets = null;
+		String query = baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map);
+		String epicLinkCustomId = "10005";
+		switch (queryCase) {
+		case JIRAConstants.KEY_EPIC:
+
+			query = baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map) + " and cf["
+					+ epicLinkCustomId + "]=" + attachedArg;
+			ets = toExternalTasks(query);
+			break;
+		case JIRAConstants.KEY_ALL_EPICS:
+			// query = baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey +
+			// getIssueQueryString(map) + " and cf["
+			// + epicLinkCustomId + "]!=null";
+			List<JIRAEpic> list = getEpicsWithIssues(projectKey, map);
+			ets = toExternalTasks(list);
+			break;
+		case JIRAConstants.KEY_VERSION:
+			query = baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map) + " and fixVersion="
+					+ attachedArg;
+			ets = toExternalTasks(query);
+			break;
+		case JIRAConstants.KEY_ALL_PROJECT_PLANNED_ISSUES:
+			query = baseUri + JIRAConstants.ISSUES_SUFFIX + projectKey + getIssueQueryString(map);
+			ets = toExternalTasks(query);
+		}
+		return ets;
+	}
+
+	private List<ExternalTask> toExternalTasks(String query) {
+		List<ExternalTask> ets = new ArrayList<>();
+		List<JIRASprint> sprints = getSprintsWithIssues(encodeUrl(query));
+		for (JIRASprint sprint : sprints) {
+			ets.add((ExternalTask) sprint);
+		}
+		return ets;
+	}
+
+	private List<ExternalTask> toExternalTasks(List<JIRAEpic> list) {
+		List<ExternalTask> ets = new ArrayList<>();
+		for (JIRAEpic epic : list) {
+			ets.add((ExternalTask) epic);
+		}
+		return ets;
+	}
+
+	public List<JIRAIssue> getIssues(String projectKey, String issueType) {
+		Map<String, Boolean> map = new HashMap<>();
+		map.put(issueType, true);
+		return getIssues(projectKey, map);
+	}
+
+	public List<JIRAEpic> getEpicsWithIssues(String projectKey, Map<String, Boolean> issuesToImport) {
+		List<JIRAEpic> list = new ArrayList<>();
+		issuesToImport.put("EPIC", true);
+		List<JIRAIssue> allIssues = getIssues(projectKey, issuesToImport);
+		List<JIRAIssue> issues = new ArrayList<>();
+		for (JIRAIssue issue : allIssues) {
+			if ("Epic".equals(issue.getType())) {
+				list.add((JIRAEpic) issue);
+			} else {
+				issues.add(issue);
+			}
+
+		}
+
+		for (JIRAIssue ji : issues) {
+			String el = ji.getEpicLink();
+			for (JIRAEpic e : list) {
+				if (el.equals(e.getKey())) {
+					List<JIRAIssue> subTasks = e.getSubTasks();
+					if (subTasks == null) {
+						subTasks = new ArrayList<>();
+					}
+					subTasks.add(e);
+					e.setSubTasks(subTasks);
+				}
+			}
+		}
+
 		return list;
 	}
 
@@ -227,22 +354,85 @@ public class JIRAService {
 		return resolveJIRATempoWorklogs(jtls);
 	}
 
+	public List<JIRAVersion> getVersions(String projectKey) {
+		List<JIRAVersion> list = new ArrayList<>();
+		String query = (baseUri + JIRAConstants.VERSIONS_SUFFIX).replace(JIRAConstants.REPLACE_PROJECT_KEY, projectKey);
+		ClientResponse response = wrapper.sendGet(query);
+		String jsonStr = response.getEntity(String.class);
+		JSONArray array = null;
+		try {
+			array = new JSONArray(jsonStr);
+		} catch (JSONException e) {
+
+		}
+
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				JIRAVersion version = resolveVersion(array.getJSONObject(i));
+				list.add(version);
+			} catch (JSONException e) {
+
+			}
+		}
+
+		return list;
+
+	}
+
+	private JIRAVersion resolveVersion(JSONObject obj) {
+		Class versionClz = JIRAVersion.class;
+		JIRAVersion version = null;
+
+		try {
+			version = (JIRAVersion) versionClz.newInstance();
+			Map<String, Method> methods = new HashMap<>();
+			for (Method m : versionClz.getDeclaredMethods()) {
+				methods.put(m.getName(), m);
+
+			}
+			Iterator<String> i = obj.keys();
+
+			while (i.hasNext()) {
+				String key = i.next();
+				String methodName = "set" + (key.substring(0, 1).toUpperCase() + key.substring(1, key.length()));
+				Method method = methods.get(methodName);
+				String parameterTypeName = method.getParameterTypes()[0].getSimpleName();
+				if ("String".equals(parameterTypeName)) {
+					method.invoke(version, obj.getString(key));
+				}
+
+				if ("boolean".equals(parameterTypeName)) {
+					method.invoke(version, obj.getBoolean(key));
+				}
+
+			}
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| JSONException e) {
+
+		}
+
+		return version;
+	}
+
 	private JIRAIssue resolveIssue(JSONObject fields, boolean isSubtask, String scheduledStart, String scheduledFinish,
-			String actualFinish, String sprintCustomId) throws JSONException {
+			String actualFinish, String issueKey, String sprintCustomId, String epicLinkCustomId) throws JSONException {
 		String name = fields.getString("summary");
 		String status = fields.getJSONObject("status").getString("name");
 		String type = fields.getJSONObject("issuetype").getString("name");
-		Object assignee = fields.get("assignee");
+		Object assignee = fields.has("assignee") ? fields.get("assignee") : "null";
 		String resources = "null".equals(assignee.toString()) ? "" : ((JSONObject) assignee).getString("displayName");
-		String createdDate = fields.getString("created");
-		String updatedDate = fields.getString("updated");
+		String createdDate = fields.has("created") ? fields.getString("created") : "";
+		String updatedDate = fields.has("updated") ? fields.getString("updated") : "";
+		String epicLink = fields.getString(epicLinkCustomId);
 		if (fields.has("resolutionDate")) {
 			Object resolutionDate = fields.get("resolutionDate");
 			actualFinish = "null".equals(resolutionDate.toString()) ? null : (String) resolutionDate;
 		}
-		Object timeestimate = fields.get("timeestimate");
-		Long scheduledEffort = "null".equals(timeestimate.toString()) ? 0 : (Long) timeestimate;
+		Object timeestimate = fields.has("timeestimate") ? fields.getString("timeestimate") : "null";
+		// Long scheduledEffort = "null".equals(timeestimate.toString()) ? 0 :
+		// (Long) timeestimate;
 
+		Long scheduledEffort = 0L;
 		String total = null;
 		String percentComplete = null;
 		List<JIRAIssue> children = null;
@@ -258,20 +448,89 @@ public class JIRAService {
 			children = new ArrayList<>();
 			JSONArray childrenJson = fields.getJSONArray("subtasks");
 			for (int i = 0; i < childrenJson.length(); i++) {
+				String key = childrenJson.getJSONObject(i).getString("key");
 				JSONObject subfields = childrenJson.getJSONObject(i).getJSONObject("fields");
-				JIRAIssue subIssue = resolveIssue(subfields, true, scheduledStart, scheduledFinish, actualFinish,
-						sprintCustomId);
+				JIRAIssue subIssue = resolveIssue(subfields, true, scheduledStart, scheduledFinish, actualFinish, key,
+						sprintCustomId, epicLinkCustomId);
 				children.add(subIssue);
 			}
-			JSONObject progressObj = fields.getJSONObject("progress");
-			String progress = progressObj.getString("progress");
-			total = progressObj.getString("total");
-			percentComplete = "0".equals(total) ? "0"
-					: (Double.parseDouble(progress) / Integer.parseInt(total) * 100) + "";
+			JSONObject progressObj = fields.has("progress") ? fields.getJSONObject("progress") : null;
+			if (progressObj != null) {
+				String progress = progressObj.getString("progress");
+				total = progressObj.getString("total");
+				scheduledEffort = Long.parseLong(total);
+				percentComplete = "0".equals(total) ? "0"
+						: (Double.parseDouble(progress) / Integer.parseInt(total) * 100) + "";
+			}
 		}
-		return new JIRAIssue(name, type, status, scheduledStart, scheduledFinish, null, scheduledEffort, null,
-				percentComplete, actualFinish, null, null, resources, createdDate, updatedDate, children);
+		return new JIRAIssue(name, type, issueKey, status, scheduledStart, scheduledFinish, null, scheduledEffort, null,
+				percentComplete, actualFinish, null, null, resources, createdDate, updatedDate, children, epicLink);
 
+	}
+
+	private Map<JIRASprint, List<JIRAIssue>> resolveIssue(JSONArray jsonIssues, String sprintCustomId,
+			String epicLinkCustomId) throws JSONException {
+		Map<JIRASprint, List<JIRAIssue>> map = new LinkedHashMap<>();
+		for (int i = 0; i < jsonIssues.length(); i++) {
+			JSONObject fields = jsonIssues.getJSONObject(i).getJSONObject("fields");
+			String issueKey = jsonIssues.getJSONObject(i).getString("key");
+			String name = fields.getString("summary");
+			String status = fields.getJSONObject("status").getString("name");
+			String type = fields.getJSONObject("issuetype").getString("name");
+			Object assignee = fields.has("assignee") ? fields.get("assignee") : "null";
+			String resources = "null".equals(assignee.toString()) ? ""
+					: ((JSONObject) assignee).getString("displayName");
+			String createdDate = fields.has("created") ? fields.getString("created") : "";
+			String updatedDate = fields.has("updated") ? fields.getString("updated") : "";
+			String epicLink = fields.getString(epicLinkCustomId);
+			String actualFinish = null;
+			if (fields.has("resolutiondate")) {
+				Object resolutionDate = fields.get("resolutiondate");
+				actualFinish = "null".equals(resolutionDate.toString()) ? null : (String) resolutionDate;
+			}
+			Object timeestimate = fields.has("timeestimate") ? fields.getString("timeestimate") : "null";
+			Long scheduledEffort = "null".equals(timeestimate.toString()) ? 0 : Long.parseLong((String) timeestimate);
+
+			String total = null;
+			String percentComplete = null;
+
+			Map<String, String> sprintCustomfield = null;
+
+			sprintCustomfield = resolveSprintCustomfield(fields.getJSONArray(sprintCustomId).getString(0));
+			String scheduledStart = sprintCustomfield.get("startDate");
+			String scheduledFinish = sprintCustomfield.get("endDate");
+			String sprintName = sprintCustomfield.get("name");
+			String sprintId = sprintCustomfield.get("id");
+			String sprintState = sprintCustomfield.get("state");
+
+			JSONObject progressObj = fields.has("progress") ? fields.getJSONObject("progress") : null;
+			if (progressObj != null) {
+				String progress = progressObj.getString("progress");
+				total = progressObj.getString("total");
+				percentComplete = "0".equals(total) ? "0"
+						: (Double.parseDouble(progress) / Integer.parseInt(total) * 100) + "";
+			}
+
+			if (scheduledStart.compareTo(createdDate) == 1) {
+				createdDate = scheduledStart;
+			}
+
+			JIRAIssue issue = new JIRAIssue(name, type, issueKey, status, scheduledStart, scheduledFinish, null,
+					scheduledEffort, null, percentComplete, actualFinish, null, null, resources, createdDate,
+					updatedDate, null, epicLink);
+			JIRASprint sprint = new JIRASprint(sprintId, sprintState, sprintName, scheduledStart, scheduledFinish);
+
+			if (map.containsKey(sprint)) {
+				map.get(sprint).add(issue);
+			} else {
+				List<JIRAIssue> issues = new ArrayList<>();
+				issues.add(issue);
+				map.put(sprint, issues);
+			}
+
+		}
+
+		return map;
 	}
 
 	// Convert SprintCustomfield from String to Map.The example of origin format
@@ -339,26 +598,8 @@ public class JIRAService {
 	}
 
 	private String encodeUrl(String url) {
-		return url.replaceAll(" ", "%20").replaceAll(">", "%3E").replaceAll("<", "%3C");
+		return url.replaceAll(" ", "%20").replaceAll(">", "%3E").replaceAll("<", "%3C").replaceAll("-", "%2D")
+				.replaceAll("!", "%21");
 	}
 
-	// Different Jira Instance has different customfield Id including sprint
-	// customfield, so the sprint id needs to be found.
-	private String findSprintCustomId(JSONObject schemas) {
-		Iterator<String> i = schemas.keys();
-		String sprintCutomId = "";
-		while (i.hasNext()) {
-			String key = i.next();
-			try {
-				String custom = schemas.getJSONObject(key).getString("custom");
-				if (JIRAConstants.JIRA_SPRINT_CUSTOM.equals(custom)) {
-					sprintCutomId = key;
-				}
-			} catch (JSONException e) {
-
-			}
-
-		}
-		return sprintCutomId;
-	}
 }
