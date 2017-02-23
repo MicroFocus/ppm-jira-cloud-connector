@@ -466,7 +466,7 @@ public class JIRAService {
 		Long scheduledEffort = 0L;
 		String total = null;
 		String percentComplete = null;
-		List<JIRAIssue> children = null;
+		List<JIRAIssue> children = new ArrayList<>();
 		if (!isSubtask) {
 
 			Map<String, String> sprintCustomfield = null;
@@ -476,15 +476,6 @@ public class JIRAService {
 				scheduledFinish = sprintCustomfield.get("endDate");
 			}
 
-			children = new ArrayList<>();
-			JSONArray childrenJson = fields.getJSONArray("subtasks");
-			for (int i = 0; i < childrenJson.length(); i++) {
-				String key = childrenJson.getJSONObject(i).getString("key");
-				JSONObject subfields = childrenJson.getJSONObject(i).getJSONObject("fields");
-				JIRAIssue subIssue = resolveIssue(subfields, true, scheduledStart, scheduledFinish, actualFinish, key,
-						sprintCustomId, epicLinkCustomId);
-				children.add(subIssue);
-			}
 			JSONObject progressObj = fields.has("progress") ? fields.getJSONObject("progress") : null;
 			if (progressObj != null) {
 				String progress = progressObj.getString("progress");
@@ -539,8 +530,10 @@ public class JIRAService {
 			if (progressObj != null) {
 				String progress = progressObj.getString("progress");
 				total = progressObj.getString("total");
+				scheduledEffort = Long.parseLong(total);
 				percentComplete = "0".equals(total) ? "0"
 						: (Double.parseDouble(progress) / Integer.parseInt(total) * 100) + "";
+
 			}
 
 			if (scheduledStart.compareTo(createdDate) == 1) {
@@ -569,15 +562,16 @@ public class JIRAService {
 	// of sprintCustomfield is
 	// "com.atlassian.greenhopper.service.sprint.Sprint@1f39706[id=1,rapidViewId=1,state=ACTIVE,name=SampleSprint
 	// 2,goal=<null>,startDate=2016-12-07T06:18:24.224+08:00,endDate=2016-12-21T06:38:24.224+08:00,completeDate=<null>,sequence=1]"
-	private Map<String, String> resolveSprintCustomfield(String sprintCustomfield) {
+	private static Map<String, String> resolveSprintCustomfield(String sprintCustomfield) {
 		Map<String, String> map = new HashMap<>();
-		String reg = ".+@.+\\[(.+=.*),(.+=.*),(.+=.*),(.+=.*),(.+=.*),(.+=.*),(.+=.*),(.+=.*),(.+=.*)\\]";
+		String reg = ".+@.+\\[(.+)]";
 		Pattern pattern = Pattern.compile(reg);
 		Matcher matcher = pattern.matcher(sprintCustomfield);
 		if (matcher.find()) {
-			for (int i = 1; i <= matcher.groupCount(); i++) {
-				String exp = matcher.group(i);
-				String[] splited = exp.split("=");
+			String exp = matcher.group(1);
+			String[] kvs = exp.split(",");
+			for (String kv : kvs) {
+				String[] splited = kv.split("=");
 				map.put(splited[0], splited.length == 2 ? splited[1] : null);
 			}
 		}

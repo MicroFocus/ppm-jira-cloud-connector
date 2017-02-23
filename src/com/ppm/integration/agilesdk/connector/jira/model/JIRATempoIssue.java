@@ -1,86 +1,79 @@
 package com.ppm.integration.agilesdk.connector.jira.model;
 
 public class JIRATempoIssue {
-    private String self;
+	private String self;
+	private String id;
+	private String projectId;
+	private String key;
+	private Long remainingEstimateSeconds;
+	private String issueType;
+	private String summary;
 
-    private String id;
+	public JIRATempoIssue(String self, String id, String projectId, String key, Long remainingEstimateSeconds,
+			String issueType, String summary) {
+		this.self = self;
+		this.id = id;
+		this.projectId = projectId;
+		this.key = key;
+		this.remainingEstimateSeconds = remainingEstimateSeconds;
+		this.issueType = issueType;
+		this.summary = summary;
+	}
 
-    private String projectId;
+	public String getSelf() {
+		return self;
+	}
 
-    private String key;
+	public void setSelf(String self) {
+		this.self = self;
+	}
 
-    private Long remainingEstimateSeconds;
+	public String getId() {
+		return id;
+	}
 
-    private String issueType;
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    private String summary;
+	public String getProjectId() {
+		return projectId;
+	}
 
-    public JIRATempoIssue(String self, String id, String projectId, String key, Long remainingEstimateSeconds,
-            String issueType, String summary)
-    {
-        this.self = self;
-        this.id = id;
-        this.projectId = projectId;
-        this.key = key;
-        this.remainingEstimateSeconds = remainingEstimateSeconds;
-        this.issueType = issueType;
-        this.summary = summary;
-    }
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
 
-    public String getSelf() {
-        return self;
-    }
+	public String getKey() {
+		return key;
+	}
 
-    public void setSelf(String self) {
-        this.self = self;
-    }
+	public void setKey(String key) {
+		this.key = key;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public Long getRemainingEstimateSeconds() {
+		return remainingEstimateSeconds;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setRemainingEstimateSeconds(Long remainingEstimateSeconds) {
+		this.remainingEstimateSeconds = remainingEstimateSeconds;
+	}
 
-    public String getProjectId() {
-        return projectId;
-    }
+	public String getIssueType() {
+		return issueType;
+	}
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
+	public void setIssueType(String issueType) {
+		this.issueType = issueType;
+	}
 
-    public String getKey() {
-        return key;
-    }
+	public String getSummary() {
+		return summary;
+	}
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public Long getRemainingEstimateSeconds() {
-        return remainingEstimateSeconds;
-    }
-
-    public void setRemainingEstimateSeconds(Long remainingEstimateSeconds) {
-        this.remainingEstimateSeconds = remainingEstimateSeconds;
-    }
-
-    public String getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(String issueType) {
-        this.issueType = issueType;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
 
 }

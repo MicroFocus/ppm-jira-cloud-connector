@@ -247,7 +247,7 @@ public class JIRASprint extends JIRAEntity {
 					for (JIRAIssue ji : issues) {
 						actualEffort += ji.getScheduledEffort();
 					}
-					return actualEffort / 3600;
+					return actualEffort / 3600.0;
 				}
 
 				return super.getScheduledEffort();

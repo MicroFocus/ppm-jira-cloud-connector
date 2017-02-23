@@ -1,75 +1,69 @@
 package com.ppm.integration.agilesdk.connector.jira.model;
 
 public class JIRATempoWorklog {
-    private Long timeSpentSeconds;
+	private Long timeSpentSeconds;
+	private String dateStarted;
+	private String comment;
+	private String self;
+	private String id;
+	private JIRATempoIssue issue;
 
-    private String dateStarted;
+	public JIRATempoWorklog(Long timeSpentSeconds, String dateStarted, String comment, String self, String id,
+			JIRATempoIssue issue) {
+		this.timeSpentSeconds = timeSpentSeconds;
+		this.dateStarted = dateStarted;
+		this.comment = comment;
+		this.self = self;
+		this.id = id;
+		this.issue = issue;
+	}
 
-    private String comment;
+	public Long getTimeSpentSeconds() {
+		return timeSpentSeconds;
+	}
 
-    private String self;
+	public void setTimeSpentSeconds(Long timeSpentSeconds) {
+		this.timeSpentSeconds = timeSpentSeconds;
+	}
 
-    private String id;
+	public String getDateStarted() {
+		return dateStarted;
+	}
 
-    private JIRATempoIssue issue;
+	public void setDateStarted(String dateStarted) {
+		this.dateStarted = dateStarted;
+	}
 
-    public JIRATempoWorklog(Long timeSpentSeconds, String dateStarted, String comment, String self, String id,
-            JIRATempoIssue issue)
-    {
-        this.timeSpentSeconds = timeSpentSeconds;
-        this.dateStarted = dateStarted;
-        this.comment = comment;
-        this.self = self;
-        this.id = id;
-        this.issue = issue;
-    }
+	public String getComment() {
+		return comment;
+	}
 
-    public Long getTimeSpentSeconds() {
-        return timeSpentSeconds;
-    }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
-    public void setTimeSpentSeconds(Long timeSpentSeconds) {
-        this.timeSpentSeconds = timeSpentSeconds;
-    }
+	public String getSelf() {
+		return self;
+	}
 
-    public String getDateStarted() {
-        return dateStarted;
-    }
+	public void setSelf(String self) {
+		this.self = self;
+	}
 
-    public void setDateStarted(String dateStarted) {
-        this.dateStarted = dateStarted;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public String getComment() {
-        return comment;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	public JIRATempoIssue getIssue() {
+		return issue;
+	}
 
-    public String getSelf() {
-        return self;
-    }
-
-    public void setSelf(String self) {
-        this.self = self;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public JIRATempoIssue getIssue() {
-        return issue;
-    }
-
-    public void setIssue(JIRATempoIssue issue) {
-        this.issue = issue;
-    }
+	public void setIssue(JIRATempoIssue issue) {
+		this.issue = issue;
+	}
 
 }

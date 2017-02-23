@@ -1,6 +1,11 @@
 package com.ppm.integration.agilesdk.connector.jira;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.ppm.integration.agilesdk.ValueSet;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRAExternalWorkPlan;
 import com.ppm.integration.agilesdk.connector.jira.model.JIRAIssue;
@@ -13,7 +18,13 @@ import com.ppm.integration.agilesdk.pm.ExternalTask;
 import com.ppm.integration.agilesdk.pm.ExternalWorkPlan;
 import com.ppm.integration.agilesdk.pm.WorkPlanIntegration;
 import com.ppm.integration.agilesdk.pm.WorkPlanIntegrationContext;
-import com.ppm.integration.agilesdk.ui.*;
+import com.ppm.integration.agilesdk.ui.CheckBox;
+import com.ppm.integration.agilesdk.ui.DynamicDropdown;
+import com.ppm.integration.agilesdk.ui.Field;
+import com.ppm.integration.agilesdk.ui.LabelText;
+import com.ppm.integration.agilesdk.ui.LineBreaker;
+import com.ppm.integration.agilesdk.ui.PasswordText;
+import com.ppm.integration.agilesdk.ui.PlainText;
 
 public class JIRAWorkPlanIntegration extends WorkPlanIntegration {
 	private JIRAService service;
@@ -116,7 +127,7 @@ public class JIRAWorkPlanIntegration extends WorkPlanIntegration {
 											values.get(JIRAConstants.KEY_USERNAME),
 											values.get(JIRAConstants.KEY_PASSWORD),
 											values.get(JIRAConstants.KEY_BASE_URL));
-									List<JIRAIssue> list = service.getIssues(projectKey, "EPIC");
+									List<JIRAIssue> list = service.getIssues(projectKey, JIRAConstants.JIRA_ISSUE_EPIC);
 									for (JIRAIssue issue : list) {
 										Option option = new Option(issue.getKey(), issue.getName());
 										options.add(option);
@@ -171,6 +182,11 @@ public class JIRAWorkPlanIntegration extends WorkPlanIntegration {
 				isBreakdown);
 
 		return new JIRAExternalWorkPlan(ets);
+	}
+
+	@Override
+	public String getCustomDetailPage() {
+		return null;
 	}
 
 	private void configureService(String proxyHost, String proxyPort, String username, String password,

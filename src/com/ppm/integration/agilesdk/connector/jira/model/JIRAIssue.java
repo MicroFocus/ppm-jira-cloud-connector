@@ -232,7 +232,7 @@ public class JIRAIssue extends JIRAEntity {
 		ExternalTaskActuals etl = new ExternalTaskActuals() {
 			@Override
 			public double getScheduledEffort() {
-				return scheduledEffort / 3600;
+				return scheduledEffort / 3600.0;
 			}
 
 			@Override
@@ -271,7 +271,7 @@ public class JIRAIssue extends JIRAEntity {
 		case "In Progress":
 			return TaskStatus.IN_PROGRESS;
 		case "Done":
-			return TaskStatus.READY;
+			return TaskStatus.COMPLETED;
 		default:
 			return TaskStatus.UNKNOWN;
 		}

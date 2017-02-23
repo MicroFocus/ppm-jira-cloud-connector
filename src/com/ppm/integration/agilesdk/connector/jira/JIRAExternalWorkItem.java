@@ -56,9 +56,4 @@ public class JIRAExternalWorkItem extends ExternalWorkItem {
 		return eb;
 	}
 
-	@Override
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-
 }

@@ -1,86 +1,79 @@
 package com.ppm.integration.agilesdk.connector.jira.model;
 
 public class JIRAIssueType {
-    private String self;
+	private String self;
+	private String id;
+	private String description;
+	private String iconUrl;
+	private String name;
+	private boolean subtask;
+	private Integer avatarId;
 
-    private String id;
+	public JIRAIssueType(String self, String id, String description, String iconUrl, String name, boolean subtask,
+			Integer avatarId) {
+		this.self = self;
+		this.id = id;
+		this.description = description;
+		this.iconUrl = iconUrl;
+		this.name = name;
+		this.subtask = subtask;
+		this.avatarId = avatarId;
+	}
 
-    private String description;
+	public String getSelf() {
+		return self;
+	}
 
-    private String iconUrl;
+	public void setSelf(String self) {
+		this.self = self;
+	}
 
-    private String name;
+	public String getId() {
+		return id;
+	}
 
-    private boolean subtask;
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    private Integer avatarId;
+	public String getDescription() {
+		return description;
+	}
 
-    public JIRAIssueType(String self, String id, String description, String iconUrl, String name, boolean subtask,
-            Integer avatarId)
-    {
-        this.self = self;
-        this.id = id;
-        this.description = description;
-        this.iconUrl = iconUrl;
-        this.name = name;
-        this.subtask = subtask;
-        this.avatarId = avatarId;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public String getSelf() {
-        return self;
-    }
+	public String getIconUrl() {
+		return iconUrl;
+	}
 
-    public void setSelf(String self) {
-        this.self = self;
-    }
+	public void setIconUrl(String iconUrl) {
+		this.iconUrl = iconUrl;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public boolean isSubtask() {
+		return subtask;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setSubtask(boolean subtask) {
+		this.subtask = subtask;
+	}
 
-    public String getIconUrl() {
-        return iconUrl;
-    }
+	public Integer getAvatarId() {
+		return avatarId;
+	}
 
-    public void setIconUrl(String iconUrl) {
-        this.iconUrl = iconUrl;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isSubtask() {
-        return subtask;
-    }
-
-    public void setSubtask(boolean subtask) {
-        this.subtask = subtask;
-    }
-
-    public Integer getAvatarId() {
-        return avatarId;
-    }
-
-    public void setAvatarId(Integer avatarId) {
-        this.avatarId = avatarId;
-    }
+	public void setAvatarId(Integer avatarId) {
+		this.avatarId = avatarId;
+	}
 
 }

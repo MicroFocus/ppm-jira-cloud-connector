@@ -52,6 +52,7 @@ public class JIRAEpic extends JIRAIssue {
 	public List<ExternalTask> getChildren() {
 		if (isBreakdown) {
 			List<ExternalTask> ets = new ArrayList<>();
+
 			for (JIRAIssue issue : this.getSubTasks()) {
 				ets.add((ExternalTask) issue);
 			}
@@ -75,16 +76,16 @@ public class JIRAEpic extends JIRAIssue {
 
 			@Override
 			public double getScheduledEffort() {
-				if (!isBreakdown) {
-					double actualEffort = 0.0;
+				// if (!isBreakdown) {
+				// double actualEffort = 0.0;
+				//
+				// for (JIRAIssue ji : getSubTasks()) {
+				// actualEffort += ji.getScheduledEffort();
+				// }
+				// return actualEffort / 3600;
+				// }
 
-					for (JIRAIssue ji : getSubTasks()) {
-						actualEffort += ji.getScheduledEffort();
-					}
-					return actualEffort / 3600;
-				}
-
-				return getEffort() / 3600;
+				return getEffort() / 3600.0;
 			}
 		};
 		return Arrays.asList(new ExternalTaskActuals[] { eta });
