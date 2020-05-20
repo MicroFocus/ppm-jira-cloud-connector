@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# HPE PPM Agile SDK Connector {CONNECTOR_DESC}
+# MF PPM Agile SDK Connector {CONNECTOR_DESC}
 # -----------------------------------------------------------------------------
 
 DESCRIPTION="PPM Agile SDK Connector {CONNECTOR_DESC}"
