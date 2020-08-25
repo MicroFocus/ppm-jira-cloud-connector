@@ -113,8 +113,8 @@ public class JIRAIssueWork extends JIRABase {
                 worklog.setAuthorEmail(obj.getJSONObject("author").getString("emailAddress"));
             }
 
-            if (obj.has("author") && obj.getJSONObject("author").has("key")) {
-                worklog.setAuthorKey(obj.getJSONObject("author").getString("key"));
+            if (obj.has("author") && obj.getJSONObject("author").has("accountId")) {
+                worklog.setAuthorKey(obj.getJSONObject("author").getString("accountId"));
             }
 
             worklog.setDateStarted(obj.getString("started"));
