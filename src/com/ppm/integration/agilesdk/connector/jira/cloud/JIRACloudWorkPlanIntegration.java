@@ -501,15 +501,15 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
                             @Override
                             public TaskStatus getStatus() {
-                                return epic.getExternalTaskStatus();
+                                return epic.getExternalTaskStatus(taskContext);
                             }
 
                             @Override public Date getScheduledStart() {
-                                return epic.getContents().isEmpty() ? epic.getScheduledStart(taskContext.sprints) : getEarliestScheduledStart(getChildren());
+                                return epic.getContents().isEmpty() ? epic.getScheduledStart(taskContext.sprints, taskContext) : getEarliestScheduledStart(getChildren());
                             }
 
                             @Override public Date getScheduledFinish() {
-                                return epic.getContents().isEmpty() ? epic.getScheduledFinish(taskContext.sprints) : getLatestScheduledFinish(getChildren());
+                                return epic.getContents().isEmpty() ? epic.getScheduledFinish(taskContext.sprints, taskContext) : getLatestScheduledFinish(getChildren());
                             }
 
                             @Override public Map<Integer, UserData> getUserDataFields() {
@@ -844,7 +844,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
                                 @Override
                                 public TaskStatus getStatus() {
-                                    return epic.getExternalTaskStatus();
+                                    return epic.getExternalTaskStatus(taskContext);
                                 }
 
                                 @Override
@@ -1011,15 +1011,15 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
             @Override
             public TaskStatus getStatus() {
-                return issue.getExternalTaskStatus();
+                return issue.getExternalTaskStatus(taskContext);
             }
 
             @Override public Date getScheduledStart() {
-                return node.getChildren().isEmpty() ? issue.getScheduledStart(taskContext.sprints) : getEarliestScheduledStart(getChildren());
+                return node.getChildren().isEmpty() ? issue.getScheduledStart(taskContext.sprints, taskContext) : getEarliestScheduledStart(getChildren());
             }
 
             @Override public Date getScheduledFinish() {
-                return node.getChildren().isEmpty() ? issue.getScheduledFinish(taskContext.sprints) : getLatestScheduledFinish(getChildren());
+                return node.getChildren().isEmpty() ? issue.getScheduledFinish(taskContext.sprints, taskContext) : getLatestScheduledFinish(getChildren());
             }
 
             @Override public Map<Integer, UserData> getUserDataFields() {
@@ -1146,7 +1146,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             }
 
             @Override public TaskStatus getStatus() {
-                return issue.getExternalTaskStatus();
+                return issue.getExternalTaskStatus(context);
             }
 
             @Override public String getName() {
@@ -1155,11 +1155,11 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             }
 
             @Override public Date getScheduledStart() {
-                return issue.getScheduledStart(context.sprints);
+                return issue.getScheduledStart(context.sprints, context);
             }
 
             @Override public Date getScheduledFinish() {
-                return issue.getScheduledFinish(context.sprints);
+                return issue.getScheduledFinish(context.sprints, context);
             }
 
             @Override public List<ExternalTaskActuals> getActuals() {
@@ -1211,7 +1211,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         List<ExternalTaskActuals> actuals = new ArrayList<ExternalTaskActuals>();
 
-        if (ExternalTask.TaskStatus.IN_PROGRESS.equals(issue.getExternalTaskStatus())) {
+        if (ExternalTask.TaskStatus.IN_PROGRESS.equals(issue.getExternalTaskStatus(context))) {
             // Leaf Tasks that are IN_PROGRESS must always have Actual Start defined on unassigned effort
             actuals.add(new ExternalTaskActuals() {
 
@@ -1345,11 +1345,11 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             }
 
             @Override public Date getActualStart() {
-                if (ExternalTask.TaskStatus.IN_PLANNING.equals(issue.getExternalTaskStatus())) {
+                if (ExternalTask.TaskStatus.IN_PLANNING.equals(issue.getExternalTaskStatus(context))) {
                     return null;
                 }
 
-                return issue.getScheduledStart(context.sprints);
+                return issue.getScheduledStart(context.sprints, context);
             }
 
             @Override public Double getEstimatedRemainingEffort() {
@@ -1361,7 +1361,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             }
 
             @Override public Date getActualFinish() {
-                return issue.isDone() ? issue.getScheduledFinish(context.sprints) : null;
+                return issue.isDone() ? issue.getScheduledFinish(context.sprints, context) : null;
             }
 
             @Override public double getActualEffort() {
@@ -1382,7 +1382,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             }
 
             @Override public Date getEstimatedFinishDate() {
-                return issue.getScheduledFinish(context.sprints);
+                return issue.getScheduledFinish(context.sprints, context);
             }
         };
     }
@@ -1467,7 +1467,36 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         }
     }
 
-    private class TasksCreationContext {
+    public class TasksCreationContext {
+
+        private Map<String, ExternalTask.TaskStatus> jiraStatusToPPMStatus = null;
+
+        public ExternalTask.TaskStatus getPPMStatusForJiraStatus(String jiraStatus) {
+            if (jiraStatusToPPMStatus == null) {
+                jiraStatusToPPMStatus = new HashMap<String, ExternalTask.TaskStatus>();
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.ACTIVE, JIRAConstants.KEY_TASK_STATUS_ACTIVE);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.IN_PLANNING, JIRAConstants.KEY_TASK_STATUS_IN_PLANNING);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.READY, JIRAConstants.KEY_TASK_STATUS_READY);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.IN_PROGRESS, JIRAConstants.KEY_TASK_STATUS_IN_PROGRESS);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.COMPLETED, JIRAConstants.KEY_TASK_STATUS_COMPLETED);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.PENDING_PREDECESSOR, JIRAConstants.KEY_TASK_STATUS_PENDING_PREDECESSOR);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.CANCELLED, JIRAConstants.KEY_TASK_STATUS_CANCELLED);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.ON_HOLD, JIRAConstants.KEY_TASK_STATUS_ON_HOLD);
+                addStatus(jiraStatusToPPMStatus, ExternalTask.TaskStatus.UNKNOWN, JIRAConstants.KEY_TASK_STATUS_UNKNOWN);
+            }
+
+            return jiraStatusToPPMStatus.get(jiraStatus.toUpperCase());
+        }
+
+        private void addStatus(Map<String, ExternalTask.TaskStatus> jiraStatusToPPMStatus, ExternalTask.TaskStatus ppmStatus, String configKeyName) {
+            String jiraValues = configValues.get(configKeyName);
+
+            if (!StringUtils.isBlank(jiraValues)) {
+                for (String jiraStatus : StringUtils.split(jiraValues, ';')) {
+                    jiraStatusToPPMStatus.put(jiraStatus.trim().toUpperCase(), ppmStatus);
+                }
+            }
+        }
 
         public String percentCompleteType;
 
