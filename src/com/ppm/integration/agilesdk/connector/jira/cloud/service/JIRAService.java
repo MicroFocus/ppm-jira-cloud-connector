@@ -1149,30 +1149,15 @@ public class JIRAService {
             String id = null;
             boolean isActiveOrFutureSprint = false;
 
-            Map<String, String> map = new HashMap<String, String>();
-            String reg = ".+@.+\\[(.+)]";
-            Pattern pattern = Pattern.compile(reg);
-            Matcher matcher = pattern.matcher(sprintCustomfields.getString(i));
-            if (matcher.find()) {
-                String exp = matcher.group(1);
-                String[] kvs = exp.split(",");
-                for (String kv : kvs) {
-                    String[] splited = kv.split("=");
-                    if ("id".equalsIgnoreCase(splited[0])) {
-                        if (splited.length == 2) {
-                            id = splited[1];
-                        }
-                    }
-
-                    if ("state".equalsIgnoreCase(splited[0])) {
-                        if (splited.length == 2) {
-                            isActiveOrFutureSprint =
-                                    "ACTIVE".equalsIgnoreCase(splited[1]) || "FUTURE".equalsIgnoreCase(splited[1]);
-                        }
-                    }
-                }
+            Object sprintJson = sprintCustomfields.get(0);
+            if (sprintJson instanceof JSONObject) {
+                JSONObject sprint = (JSONObject)sprintJson;
+                id = sprint.getString("id");
+                String state = sprint.getString("state");
+                isActiveOrFutureSprint =
+                        "ACTIVE".equalsIgnoreCase(state) || "FUTURE".equalsIgnoreCase(state);
             }
-
+ 
             // We only consider this the sprint ID if either it's an active or future sprint or it's the only (possibly completed) sprint.
             if (sprintId == null || isActiveOrFutureSprint) {
                 sprintId = id;
