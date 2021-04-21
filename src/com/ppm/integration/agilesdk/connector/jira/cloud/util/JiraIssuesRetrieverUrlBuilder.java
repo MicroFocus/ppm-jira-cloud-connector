@@ -61,7 +61,9 @@ public class JiraIssuesRetrieverUrlBuilder {
 
     public JiraIssuesRetrieverUrlBuilder addExtraFields(String... extras) {
         for (String extraField: extras) {
-            extraFields.add(extraField);
+            if (extraField != null) {
+                extraFields.add(extraField);
+            }
         }
         return this;
     }
