@@ -491,7 +491,9 @@ public class JIRAService {
         Map<String, String> fields = new HashMap<>();
 
         fields.put("summary", epicName);
-        fields.put(getCustomFields().epicNameCustomField, epicName);
+        if (getCustomFields().epicNameCustomField != null) {
+            fields.put(getCustomFields().epicNameCustomField, epicName);
+        }
         fields.put("description", epicDescription);
 
         return createIssue(projectKey, fields, "Epic", null);
@@ -542,8 +544,8 @@ public class JIRAService {
         }
 
         if (customFields.epicNameCustomField == null) {
-            throw new RuntimeException(
-                    "We couldn't retrieve the Epic Name mandatory custom field ID from JIRA fields metadata");
+            // Jira Cloud code is actually resilient if custom Epic Name field is not declared - we use field "summary" instead.
+            logger.warn("We couldn't retrieve the Epic Name custom field ID from JIRA fields metadata");
         }
 
         if (customFields.epicLinkCustomField == null) {
@@ -1065,8 +1067,12 @@ public class JIRAService {
             issue.setKey(obj.getString("key"));
             issue.setName(fields.getString("summary"));
             if (issue instanceof JIRAEpic) {
-                // JIRA stores Epic name in a custom field.
-                issue.setName(fields.getString(getCustomFields().epicNameCustomField));
+                // JIRA stores Epic name in a custom field, but Jira Cloud sometimes doesn't use it and falls back to summary field instead.
+                if (getCustomFields().epicNameCustomField != null && fields.has(getCustomFields().epicNameCustomField)) {
+                    issue.setName(fields.getString(getCustomFields().epicNameCustomField));
+                } else {
+                    issue.setName(fields.getString("summary"));
+                }
             }
             issue.setAssigneePpmUserId(getAssigneeUserId(fields));
             issue.setAuthorName(
