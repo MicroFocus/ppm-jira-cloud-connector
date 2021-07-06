@@ -942,11 +942,13 @@ public class JIRAService {
 
         // Read all sub-tasks, add them to parent
         for (JIRAIssue issue : subTasks) {
-            JIRASubTask subTask = (JIRASubTask)issue;
-            if (subTask.getParentKey() != null) {
-                JIRASubTaskableIssue parent = subTaskableIssues.get(subTask.getParentKey());
-                if (parent != null) {
-                    parent.addSubTask(subTask);
+            if (issue instanceof JIRASubTask) {
+                JIRASubTask subTask = (JIRASubTask)issue;
+                if (subTask.getParentKey() != null) {
+                    JIRASubTaskableIssue parent = subTaskableIssues.get(subTask.getParentKey());
+                    if (parent != null) {
+                        parent.addSubTask(subTask);
+                    }
                 }
             }
         }
