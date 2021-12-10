@@ -18,6 +18,8 @@ public class JIRAIssueType {
 
     private boolean subTask;
 
+    private boolean hasScope = false;
+
 
     public static JIRAIssueType fromJSONObject(JSONObject obj) {
         try {
@@ -26,6 +28,7 @@ public class JIRAIssueType {
             issueType.setId(obj.getString("id"));
             issueType.setDescription(obj.getString("description"));
             issueType.setSubTask(obj.has("subtask") ? obj.getBoolean("subtask") : false);
+            issueType.setHasScope(obj.has("scope"));
             return issueType;
         } catch (JSONException e) {
             throw new RuntimeException("Error while reading JSon definition of Issue Type", e);
@@ -62,5 +65,13 @@ public class JIRAIssueType {
 
     public void setSubTask(boolean st) {
         this.subTask = st;
+    }
+
+    public boolean hasScope() {
+        return hasScope;
+    }
+
+    public void setHasScope(boolean hasScope) {
+        this.hasScope = hasScope;
     }
 }

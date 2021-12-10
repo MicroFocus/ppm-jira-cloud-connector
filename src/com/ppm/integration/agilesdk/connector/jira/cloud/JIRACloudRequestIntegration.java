@@ -6,13 +6,7 @@ package com.ppm.integration.agilesdk.connector.jira.cloud;
 
 import static com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants.JIRA_ACCOUNT_ID_PREFIX;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAAgileEntity;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAFieldInfo;
@@ -47,6 +41,13 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
             feature.setType(issueType.getId());
             entityList.add(feature);
         }
+
+        Collections.sort(entityList, new Comparator<AgileEntityInfo>() {
+            @Override
+            public int compare(AgileEntityInfo o1, AgileEntityInfo o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
 
         return entityList;
     }
@@ -95,6 +96,14 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
                 fieldsInfo.add(fieldInfo);
             }
         }
+
+        // We sort fields alphabetically.
+        Collections.sort(fieldsInfo, new Comparator<AgileEntityFieldInfo>() {
+            @Override
+            public int compare(AgileEntityFieldInfo o1, AgileEntityFieldInfo o2) {
+                return o1.getLabel().compareToIgnoreCase(o2.getLabel());
+            }
+        });
 
         return fieldsInfo;
     }

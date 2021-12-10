@@ -34,7 +34,7 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public String getConnectorVersion() {
-        return "3.0";
+        return "3.1";
     }
 
     @Override
@@ -67,6 +67,9 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
                 new PlainText(JIRAConstants.KEY_ADMIN_USERNAME, "ADMIN_USERNAME", "", true),
                 new PasswordText(JIRAConstants.KEY_ADMIN_PASSWORD, "ADMIN_PASSWORD", "", true),
                 new LineBreaker(),
+                new LabelText(JIRAConstants.LABEL_REQUEST_AGILE_OPTIONS, "REQUEST_AGILE_OPTIONS","Request Mapping (Request-Agile):", false),
+                new CheckBox(JIRAConstants.KEY_ALLOW_WILDCARD_PROJECT_MAPPING, "KEY_ALLOW_WILDCARD_PROJECT_MAPPING", false),
+                new LineBreaker(),
                 new LabelText(JIRAConstants.LABEL_WORK_PLAN_OPTIONS, "WORK_PLAN_OPTIONS",
                         "User Data Options:", true),
                 getUserDataDDL(JIRAConstants.SELECT_USER_DATA_STORY_POINTS, "USER_DATA_STORY_POINTS"),
@@ -75,10 +78,13 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
                 new CheckBox(JIRAConstants.KEY_USE_ADMIN_PASSWORD_TO_MAP_TASKS, "KEY_USE_ADMIN_PASSWORD_TO_MAP_TASKS", false),
                 new CheckBox(JIRAConstants.KEY_IMPORT_ASSIGNED_USERS_TO_TASKS, "KEY_IMPORT_ASSIGNED_USERS_TO_TASKS", true),
                 new LineBreaker(),
+                new PlainText(JIRAConstants.KEY_WORK_PLAN_ISSUE_TYPES_ALLOW_LIST, "WORK_PLAN_ISSUE_TYPES_ALLOW_LIST", "", false),
+                new PlainText(JIRAConstants.KEY_WORK_PLAN_ISSUE_TYPES_CHECKED_LIST, "WORK_PLAN_ISSUE_TYPES_CHECKED_LIST", "", false),
+                new LineBreaker(),
                 new LabelText("", "STATUS_MAPPING_LABEL", "block", false),
                 new LineBreaker(),
                 //new PlainText(JIRAConstants.KEY_TASK_STATUS_IN_PLANNING, "STATUS_IN_PLANNING_LABEL", "", false),
-                new PlainText(JIRAConstants.KEY_TASK_STATUS_READY, "STATUS_READY_LABEL", "Open;Reopened;To Do", false),
+                new PlainText(JIRAConstants.KEY_TASK_STATUS_READY, "STATUS_READY_LABEL", "To Do;Open;Reopened", false),
                 //new PlainText(JIRAConstants.KEY_TASK_STATUS_ACTIVE, "STATUS_ACTIVE_LABEL", "", false),
                 new PlainText(JIRAConstants.KEY_TASK_STATUS_IN_PROGRESS, "STATUS_IN_PROGRESS_LABEL", "In Progress", false),
                 new PlainText(JIRAConstants.KEY_TASK_STATUS_COMPLETED, "STATUS_COMPLETED_LABEL", "Done;Closed;Resolved", false),
@@ -91,8 +97,16 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public List<AgileProject> getAgileProjects(ValueSet instanceConfigurationParameters) {
-        List<com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAProject> jiraProjects = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getProjects();
+        List<JIRAProject> jiraProjects = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getProjects();
         List<AgileProject> agileProjects = new ArrayList<AgileProject>(jiraProjects.size());
+
+        // Adding * project for project-independent fields mapping at the begging of the list
+        if ("true".equals(instanceConfigurationParameters.get(JIRAConstants.KEY_ALLOW_WILDCARD_PROJECT_MAPPING))) {
+            AgileProject agileProject = new AgileProject();
+            agileProject.setDisplayName("*");
+            agileProject.setValue("*");
+            agileProjects.add(agileProject);
+        }
 
         for (JIRAProject jiraProject : jiraProjects) {
             AgileProject agileProject = new AgileProject();
