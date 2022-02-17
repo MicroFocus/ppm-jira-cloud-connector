@@ -1126,7 +1126,14 @@ public class JIRAService {
             issue.setCreationDate(fields.has("created") ? fields.getString("created") : "");
             issue.setLastUpdateDate(fields.has("updated") ? fields.getString("updated") : "");
             issue.setResolutionDate(fields.has(JIRAConstants.JIRA_FIELD_RESOLUTION_DATE) ? fields.getString(JIRAConstants.JIRA_FIELD_RESOLUTION_DATE) : "");
-            issue.setEpicKey(fields.getString(getCustomFields().epicLinkCustomField));
+            
+            if (fields.has("parent") && !fields.isNull("parent")) {
+            	JSONObject parent = fields.getJSONObject("parent");
+            	if ("Epic".equals(parent.getJSONObject("fields").getJSONObject("issuetype").getString("name"))) {
+            		issue.setEpicKey(parent.getString("key"));
+            	}
+            }
+            //issue.setEpicKey(fields.getString(getCustomFields().epicLinkCustomField));
 
             if (getCustomFields().portfolioParentCustomField != null) {
                 issue.setPortfolioParentKey(fields.getString(getCustomFields().portfolioParentCustomField));
