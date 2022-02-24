@@ -226,6 +226,8 @@ public class JIRAConstants {
     public static final String JIRA_FIELD_RESOLUTION_DATE = "resolutiondate";
     
     public static final String SPLIT_CHAR = "#@#";
+    
+    public static final String DEFAULT_JIRA_EPIC_TYPE_NAME = "Epic";
 
 
 }

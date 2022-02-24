@@ -43,6 +43,8 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         List<Field> fields = new ArrayList<Field>();
 
         final JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
+        final String epicIssueType = getEpicIssueType(values);
+        service.setEpicIssueType(epicIssueType);
 
         if (!useAdminPassword) {
             fields.add(new PlainText(JIRAConstants.KEY_USERNAME, "USERNAME", "", true));
@@ -149,7 +151,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                                 options.add(new Option("0", lp.getConnectorText("IMPORT_ALL_PROJECT_ISSUES")));
                                 break;
                             case JIRAConstants.IMPORT_ONE_EPIC:
-                                List<JIRASubTaskableIssue> epics = service.getProjectIssuesList(projectKey, JIRAConstants.JIRA_ISSUE_EPIC);
+                                List<JIRASubTaskableIssue> epics = service.getProjectIssuesList(projectKey, epicIssueType);
                                 for (JIRAIssue epic : epics) {
                                     Option option = new Option(epic.getKey(), epic.getName());
                                     options.add(option);
@@ -198,7 +200,36 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                 },
                 new LineBreaker(),
 
-                importGroupSelectList,
+//                importGroupSelectList,
+                new DynamicDropdown(JIRAConstants.KEY_IMPORT_GROUPS, "IMPORT_GROUPS", "", true) {
+
+                    @Override
+                    public List<String> getDependencies() {
+
+                        return Arrays.asList(
+                                new String[] {JIRAConstants.KEY_JIRA_PROJECT});
+                    }
+
+                    @Override
+                    public List<Option> getDynamicalOptions(ValueSet values) {
+
+                        if (!useAdminPassword) {
+                            service.resetUserCredentials(values).useNonAdminAccount();
+                        }
+
+                        List<Option> options = new ArrayList<>();                        
+                        String groupEpicIssueType = epicIssueType;
+                        if (epicIssueType.equalsIgnoreCase(groupEpicIssueType)) {
+                        	groupEpicIssueType = lp.getConnectorText("GROUP_EPIC");
+                        }
+                        options.add(new Option(JIRAConstants.GROUP_EPIC,groupEpicIssueType));
+                        options.add(new Option(JIRAConstants.GROUP_SPRINT,lp.getConnectorText("GROUP_SPRINT")));
+                        options.add(new Option(JIRAConstants.GROUP_STATUS,lp.getConnectorText("GROUP_STATUS")));                        
+                        return options;
+                    }
+
+                },
+                
 
                 new LineBreaker(),
 
@@ -322,11 +353,11 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                         new LineBreaker(),
                         new SelectList(JIRAConstants.OPTION_ADD_EPIC_MILESTONES, "OPTION_ADD_EPIC_MILESTONES", "", true) {
                             @Override public List<String> getStyleDependencies() {
-                                return Arrays.asList(new String[] {JIRAConstants.JIRA_ISSUE_EPIC});
+                                return Arrays.asList(new String[] {epicIssueType});
                             }
 
                             @Override public FieldAppearance getFieldAppearance(ValueSet values) {
-                                boolean importEpics = values.getBoolean(JIRAConstants.JIRA_ISSUE_EPIC, true);
+                                boolean importEpics = values.getBoolean(epicIssueType, true);
                                 if (importEpics) {
                                     return new FieldAppearance("", "disabled");
                                 } else {
@@ -355,6 +386,14 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
             return null;
         }
         return paramName.substring(JIRAConstants.JIRA_ISSUE_TYPE_PREFIX.length()).replace("__", " ");
+    }
+    
+    private String getEpicIssueType(ValueSet values) {
+    	String epicIssueType = values.get(JIRAConstants.KEY_JIRA_EPIC_TYPE_NAME);
+        if (epicIssueType == null || epicIssueType.isEmpty() || epicIssueType.equalsIgnoreCase(JIRAConstants.JIRA_ISSUE_EPIC)) {
+        	epicIssueType = JIRAConstants.JIRA_ISSUE_EPIC;
+        }
+        return epicIssueType;
     }
 
 
@@ -408,6 +447,9 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
 
+        String epicIssueType = getEpicIssueType(values);//get configured epic issue type name
+        service.setEpicIssueType(epicIssueType);
+
         // Let's get the sprints info for that project
         List<JIRASprint> sprints = service.getAllSprints(projectKey);
         final Map <String, JIRASprint> sprintsById = new LinkedHashMap<String, JIRASprint>();
@@ -447,7 +489,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         // We always want to retrieve epics if grouping tasks by Epics
         if (JIRAConstants.GROUP_EPIC.equalsIgnoreCase(grouping)) {
-            issueTypes.add(JIRAConstants.JIRA_ISSUE_EPIC);
+            issueTypes.add(epicIssueType);
         }
 
         List<JIRASubTaskableIssue> issues = new ArrayList<JIRASubTaskableIssue>();
@@ -487,7 +529,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                 final List<JIRASubTaskableIssue> noEpicIssues = new ArrayList<JIRASubTaskableIssue>();
 
                 for (JIRASubTaskableIssue issue : issues) {
-                    if (JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+                    if (epicIssueType.equalsIgnoreCase(issue.getType())) {
                         // Epic, add it to the root tasks
                         final JIRAEpic epic = (JIRAEpic)issue;
 
@@ -603,14 +645,14 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                     if (isBlank(issue.getStatus())) {
                         noStatusIssues.add(issue);
 
-                        if (includeIssuesWithNoGroup && JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+                        if (includeIssuesWithNoGroup && epicIssueType.equalsIgnoreCase(issue.getType())) {
                             selectedEpics.add((JIRAEpic) issue);
                         }
 
                         continue;
                     }
 
-                    if (JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+                    if (epicIssueType.equalsIgnoreCase(issue.getType())) {
                         selectedEpics.add((JIRAEpic) issue);
                     }
 
@@ -690,14 +732,14 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                     if (isBlank(issue.getSprintId())) {
                         backlogIssues.add(issue);
 
-                        if (includeIssuesWithNoGroup && JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+                        if (includeIssuesWithNoGroup && epicIssueType.equalsIgnoreCase(issue.getType())) {
                             selectedEpics.add((JIRAEpic) issue);
                         }
 
                         continue;
                     }
 
-                    if (JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+                    if (epicIssueType.equalsIgnoreCase(issue.getType())) {
                         selectedEpics.add((JIRAEpic) issue);
                     }
 

@@ -31,12 +31,21 @@ import com.ppm.integration.agilesdk.ValueSet;
 public class JIRACloudTimeSheetIntegration extends TimeSheetIntegration {
 
     private final Logger logger = Logger.getLogger(this.getClass());
+    
+    private String getEpicIssueType(ValueSet values) {
+    	String epicIssueType = values.get(JIRAConstants.KEY_JIRA_EPIC_TYPE_NAME);
+        if (epicIssueType == null || epicIssueType.isEmpty() || epicIssueType.equalsIgnoreCase(JIRAConstants.JIRA_ISSUE_EPIC)) {
+        	epicIssueType = JIRAConstants.JIRA_ISSUE_EPIC;
+        }
+        return epicIssueType;
+    }
 
     @Override
     public List<ExternalWorkItem> getExternalWorkItems(TimeSheetIntegrationContext timesheetContext, ValueSet values) {
 
         // Retrieving external work items is done with admin account.
         JIRAService s = JIRAServiceProvider.get(values).useAdminAccount();
+        s.setEpicIssueType(getEpicIssueType(values));
 
         XMLGregorianCalendar start = timesheetContext.currentTimeSheet().getPeriodStartDate();
         XMLGregorianCalendar end = timesheetContext.currentTimeSheet().getPeriodEndDate();

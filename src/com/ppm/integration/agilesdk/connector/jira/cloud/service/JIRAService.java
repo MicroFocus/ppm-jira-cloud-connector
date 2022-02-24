@@ -48,6 +48,12 @@ public class JIRAService {
     private Boolean isJiraPortfolioEnabled = null;
 
     private  List<HierarchyLevelInfo> portfolioHierarchyLevelsInfo = null;
+    
+    private String epicIssueType = JIRAConstants.JIRA_ISSUE_EPIC;
+    
+    public void setEpicIssueType(String epicIssueType) {
+    	this.epicIssueType = epicIssueType;
+    }
 
     public JIRAService resetUserCredentials(ValueSet config) {
         IRestConfig userRestConfig = new JIRARestConfig();
@@ -959,7 +965,7 @@ public class JIRAService {
         // Read all Epics
         Map<String, JIRAEpic> epics = new HashMap<String, JIRAEpic>();
         for (JIRAIssue issue : allIssues) {
-            if (JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())) {
+            if (epicIssueType.equalsIgnoreCase(issue.getType())) {
                 processedIssues.add((JIRASubTaskableIssue)issue);
                 epics.put(issue.getKey(), (JIRAEpic)issue);
                 subTaskableIssues.put(issue.getKey(), (JIRAEpic)issue);
@@ -968,18 +974,27 @@ public class JIRAService {
 
         // Read all non-Epic standard issue types, add them to Epic
         for (JIRAIssue issue : allIssues) {
-            if (!JIRAConstants.JIRA_ISSUE_EPIC.equalsIgnoreCase(issue.getType())
+            if (!epicIssueType.equalsIgnoreCase(issue.getType())
                     && issue instanceof JIRASubTaskableIssue) {
 
                 processedIssues.add((JIRASubTaskableIssue)issue);
                 subTaskableIssues.put(issue.getKey(), (JIRASubTaskableIssue)issue);
-
-                if (issue.getEpicKey() != null) {
-                    JIRAEpic epic = epics.get(issue.getEpicKey());
-                    if (epic != null) {
-                        epic.addContent((JIRASubTaskableIssue)issue);
-                    }
+                
+                if (issue instanceof JIRAStandardIssue) {
+                	JIRAStandardIssue sti = (JIRAStandardIssue)issue;
+                	if (epicIssueType.equalsIgnoreCase(sti.getParentIssueType())) {
+                		String epicKey = sti.getParentKey();
+                		if (epicKey != null) {
+                            JIRAEpic epic = epics.get(epicKey);
+                            if (epic != null) {
+                                epic.addContent((JIRASubTaskableIssue)issue);
+                            }
+                        }
+                		issue.setEpicKey(epicKey);
+                	}
                 }
+
+                
             }
         }
 
@@ -1078,7 +1093,7 @@ public class JIRAService {
 
             JIRAIssue issue = null;
 
-            if (issueType.equalsIgnoreCase(JIRAConstants.JIRA_ISSUE_EPIC)) {
+            if (issueType.equalsIgnoreCase(epicIssueType)) {
                 issue = new JIRAEpic();
             } else if (getSubTasksIssueTypeNames().contains(issueType)) { // This is the only place where calling getSubTasksIssueTypes() is appropriate.
                 issue = new JIRASubTask();
@@ -1127,11 +1142,10 @@ public class JIRAService {
             issue.setLastUpdateDate(fields.has("updated") ? fields.getString("updated") : "");
             issue.setResolutionDate(fields.has(JIRAConstants.JIRA_FIELD_RESOLUTION_DATE) ? fields.getString(JIRAConstants.JIRA_FIELD_RESOLUTION_DATE) : "");
             
-            if (fields.has("parent") && !fields.isNull("parent")) {
+            if (fields.has("parent") && !fields.isNull("parent") && issue instanceof JIRAStandardIssue) {
             	JSONObject parent = fields.getJSONObject("parent");
-            	if ("Epic".equals(parent.getJSONObject("fields").getJSONObject("issuetype").getString("name"))) {
-            		issue.setEpicKey(parent.getString("key"));
-            	}
+            	((JIRAStandardIssue)issue).setParentIssueType(parent.getJSONObject("fields").getJSONObject("issuetype").getString("name"));
+            	((JIRAStandardIssue)issue).setParentKey(parent.getString("key"));
             }
             //issue.setEpicKey(fields.getString(getCustomFields().epicLinkCustomField));
 

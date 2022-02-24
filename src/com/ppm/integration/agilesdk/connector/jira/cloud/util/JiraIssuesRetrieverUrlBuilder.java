@@ -48,6 +48,8 @@ public class JiraIssuesRetrieverUrlBuilder {
             "parent", "created", "priority", "assignee", "updated", "status","timetracking"};
 
     private List<String> extraFields = new ArrayList<String>();
+    
+    private String epicIssueType = JIRAConstants.JIRA_ISSUE_EPIC;
 
     public JiraIssuesRetrieverUrlBuilder(String baseUri) {
 
@@ -239,4 +241,13 @@ public class JiraIssuesRetrieverUrlBuilder {
         SEARCH,
         BOARD
     }
+
+	public String getEpicIssueType() {
+		return epicIssueType;
+	}
+
+	public JiraIssuesRetrieverUrlBuilder setEpicIssueType(String epicIssueType) {
+		this.epicIssueType = epicIssueType;
+		return this;
+	}
 }
