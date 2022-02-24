@@ -43,7 +43,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         List<Field> fields = new ArrayList<Field>();
 
         final JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
-        final String epicIssueType = getEpicIssueType(values);
+        final String epicIssueType = JIRAServiceProvider.getEpicIssueType(values);
         service.setEpicIssueType(epicIssueType);
 
         if (!useAdminPassword) {
@@ -71,9 +71,13 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         }
 
 
+        String groupEpicIssueType = epicIssueType;
+        if (epicIssueType.equalsIgnoreCase(JIRAConstants.DEFAULT_JIRA_EPIC_TYPE_NAME)) {
+        	groupEpicIssueType = "GROUP_EPIC";
+        }
         SelectList importGroupSelectList = new SelectList(JIRAConstants.KEY_IMPORT_GROUPS,"IMPORT_GROUPS",JIRAConstants.GROUP_EPIC,true)
                 .addLevel(JIRAConstants.KEY_IMPORT_GROUPS, "IMPORT_GROUPS")
-                .addOption(new SelectList.Option(JIRAConstants.GROUP_EPIC,"GROUP_EPIC"))
+                .addOption(new SelectList.Option(JIRAConstants.GROUP_EPIC,groupEpicIssueType))
                 .addOption(new SelectList.Option(JIRAConstants.GROUP_SPRINT,"GROUP_SPRINT"))
                 .addOption(new SelectList.Option(JIRAConstants.GROUP_STATUS,"GROUP_STATUS"));
 
@@ -200,35 +204,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                 },
                 new LineBreaker(),
 
-//                importGroupSelectList,
-                new DynamicDropdown(JIRAConstants.KEY_IMPORT_GROUPS, "IMPORT_GROUPS", "", true) {
-
-                    @Override
-                    public List<String> getDependencies() {
-
-                        return Arrays.asList(
-                                new String[] {JIRAConstants.KEY_JIRA_PROJECT});
-                    }
-
-                    @Override
-                    public List<Option> getDynamicalOptions(ValueSet values) {
-
-                        if (!useAdminPassword) {
-                            service.resetUserCredentials(values).useNonAdminAccount();
-                        }
-
-                        List<Option> options = new ArrayList<>();                        
-                        String groupEpicIssueType = epicIssueType;
-                        if (epicIssueType.equalsIgnoreCase(groupEpicIssueType)) {
-                        	groupEpicIssueType = lp.getConnectorText("GROUP_EPIC");
-                        }
-                        options.add(new Option(JIRAConstants.GROUP_EPIC,groupEpicIssueType));
-                        options.add(new Option(JIRAConstants.GROUP_SPRINT,lp.getConnectorText("GROUP_SPRINT")));
-                        options.add(new Option(JIRAConstants.GROUP_STATUS,lp.getConnectorText("GROUP_STATUS")));                        
-                        return options;
-                    }
-
-                },
+                importGroupSelectList,
                 
 
                 new LineBreaker(),
@@ -387,14 +363,6 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         }
         return paramName.substring(JIRAConstants.JIRA_ISSUE_TYPE_PREFIX.length()).replace("__", " ");
     }
-    
-    private String getEpicIssueType(ValueSet values) {
-    	String epicIssueType = values.get(JIRAConstants.KEY_JIRA_EPIC_TYPE_NAME);
-        if (epicIssueType == null || epicIssueType.isEmpty() || epicIssueType.equalsIgnoreCase(JIRAConstants.JIRA_ISSUE_EPIC)) {
-        	epicIssueType = JIRAConstants.JIRA_ISSUE_EPIC;
-        }
-        return epicIssueType;
-    }
 
 
     @Override
@@ -447,7 +415,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
 
-        String epicIssueType = getEpicIssueType(values);//get configured epic issue type name
+        String epicIssueType = JIRAServiceProvider.getEpicIssueType(values);//get configured epic issue type name
         service.setEpicIssueType(epicIssueType);
 
         // Let's get the sprints info for that project
