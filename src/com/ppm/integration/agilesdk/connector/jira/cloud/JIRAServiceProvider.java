@@ -34,6 +34,7 @@ public class JIRAServiceProvider {
         JiraRestWrapper userWrapper = new JiraRestWrapper(userRestConfig);
 
         JIRAService service = new JIRAService(config.get(JIRAConstants.KEY_BASE_URL), adminWrapper, userWrapper);
+        service.setEpicIssueType(getEpicIssueType(config));
 
         return service;
     }

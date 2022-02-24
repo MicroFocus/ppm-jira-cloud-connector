@@ -44,7 +44,6 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         final JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
         final String epicIssueType = JIRAServiceProvider.getEpicIssueType(values);
-        service.setEpicIssueType(epicIssueType);
 
         if (!useAdminPassword) {
             fields.add(new PlainText(JIRAConstants.KEY_USERNAME, "USERNAME", "", true));
@@ -415,9 +414,6 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
 
         JIRAService service = JIRAServiceProvider.get(values).useAdminAccount();
 
-        String epicIssueType = JIRAServiceProvider.getEpicIssueType(values);//get configured epic issue type name
-        service.setEpicIssueType(epicIssueType);
-
         // Let's get the sprints info for that project
         List<JIRASprint> sprints = service.getAllSprints(projectKey);
         final Map <String, JIRASprint> sprintsById = new LinkedHashMap<String, JIRASprint>();
@@ -456,6 +452,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
         // End of backward compatibility code
 
         // We always want to retrieve epics if grouping tasks by Epics
+        final String epicIssueType = JIRAServiceProvider.getEpicIssueType(values);
         if (JIRAConstants.GROUP_EPIC.equalsIgnoreCase(grouping)) {
             issueTypes.add(epicIssueType);
         }

@@ -37,7 +37,6 @@ public class JIRACloudTimeSheetIntegration extends TimeSheetIntegration {
 
         // Retrieving external work items is done with admin account.
         JIRAService s = JIRAServiceProvider.get(values).useAdminAccount();
-        s.setEpicIssueType(JIRAServiceProvider.getEpicIssueType(values));
 
         XMLGregorianCalendar start = timesheetContext.currentTimeSheet().getPeriodStartDate();
         XMLGregorianCalendar end = timesheetContext.currentTimeSheet().getPeriodEndDate();

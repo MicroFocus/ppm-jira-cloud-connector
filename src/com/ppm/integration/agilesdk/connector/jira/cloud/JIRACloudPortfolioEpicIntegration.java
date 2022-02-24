@@ -43,7 +43,6 @@ public class JIRACloudPortfolioEpicIntegration extends PortfolioEpicIntegration 
         }
 
         JIRAService service = JIRAServiceProvider.get(instanceConfigurationParameters);
-        service.setEpicIssueType(JIRAServiceProvider.getEpicIssueType(instanceConfigurationParameters));
 
         // We want to retrieve the epic and all of its contents to be able to compute aggregated story points & percent SP complete
         // That means retrieve all issue types except Sub-Tasks.
