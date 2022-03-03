@@ -34,6 +34,8 @@ public class JiraIssuesRetrieverUrlBuilder {
     private Set<String> nonNullCustomFields = new HashSet<String>();
 
     private Map<String, String> customFieldsEqualsConstraints = new HashMap<String, String>();
+    
+    private Map<String, String> parentFieldsEqualsConstraints = new HashMap<String, String>();
 
     private String orderBy = "created";
 
@@ -146,6 +148,10 @@ public class JiraIssuesRetrieverUrlBuilder {
         for (Map.Entry<String, String> cfEqualsConstraint : customFieldsEqualsConstraints.entrySet()) {
             constraints.add("cf["+cfEqualsConstraint.getKey()+"]="+cfEqualsConstraint.getValue());
         }
+        
+        for (Map.Entry<String, String> pEqualsConstraint : parentFieldsEqualsConstraints.entrySet()) {
+            constraints.add("parent["+pEqualsConstraint.getKey()+"]="+pEqualsConstraint.getValue());
+        }
 
         String jql = StringUtils.join(constraints, " and ");
 
@@ -213,6 +219,11 @@ public class JiraIssuesRetrieverUrlBuilder {
      */
     public JiraIssuesRetrieverUrlBuilder addCustomFieldEqualsConstraint(String cf, String value) {
         customFieldsEqualsConstraints.put(cf.substring("customfield_".length()), value);
+        return this;
+    }
+    
+    public JiraIssuesRetrieverUrlBuilder addParentFieldEqualsConstraint(String fieldName, String value) {
+    	parentFieldsEqualsConstraints.put(fieldName, value);
         return this;
     }
 

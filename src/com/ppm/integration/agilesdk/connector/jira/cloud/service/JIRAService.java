@@ -1280,7 +1280,7 @@ public class JIRAService {
                         .addExtraFields(getCustomFields().getJiraCustomFields());
 
         // Retrieving only issues belonging to that epic
-        searchUrlBuilder.addCustomFieldEqualsConstraint(getCustomFields().epicLinkCustomField, epicKey);
+        searchUrlBuilder.addParentFieldEqualsConstraint("key", epicKey);
 
         // We also want to retrieve the Epic itself
         searchUrlBuilder.addOrConstraint("key=" + epicKey);
