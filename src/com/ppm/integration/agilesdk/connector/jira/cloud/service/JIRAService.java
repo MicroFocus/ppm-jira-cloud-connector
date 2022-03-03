@@ -1031,6 +1031,13 @@ public class JIRAService {
         for (JIRAIssue issue : allIssues) {
             if (issue instanceof JIRASubTaskableIssue) {
                 indexedIssues.put(issue.getKey(), (JIRASubTaskableIssue)issue);
+                if (issue instanceof JIRAStandardIssue) {
+                	JIRAStandardIssue sti = (JIRAStandardIssue)issue;
+                	if (epicIssueType.equalsIgnoreCase(sti.getParentIssueType())) {
+                		String epicKey = sti.getParentKey();
+                		issue.setEpicKey(epicKey);
+                	}
+                }
             } else {
                 // It's a SubTask.
                 JIRASubTask subTask = (JIRASubTask)issue;
