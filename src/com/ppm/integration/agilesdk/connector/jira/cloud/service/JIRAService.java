@@ -1031,6 +1031,13 @@ public class JIRAService {
         for (JIRAIssue issue : allIssues) {
             if (issue instanceof JIRASubTaskableIssue) {
                 indexedIssues.put(issue.getKey(), (JIRASubTaskableIssue)issue);
+                if (issue instanceof JIRAStandardIssue) {
+                	JIRAStandardIssue sti = (JIRAStandardIssue)issue;
+                	if (epicIssueType.equalsIgnoreCase(sti.getParentIssueType())) {
+                		String epicKey = sti.getParentKey();
+                		issue.setEpicKey(epicKey);
+                	}
+                }
             } else {
                 // It's a SubTask.
                 JIRASubTask subTask = (JIRASubTask)issue;
@@ -1273,7 +1280,7 @@ public class JIRAService {
                         .addExtraFields(getCustomFields().getJiraCustomFields());
 
         // Retrieving only issues belonging to that epic
-        searchUrlBuilder.addCustomFieldEqualsConstraint(getCustomFields().epicLinkCustomField, epicKey);
+        searchUrlBuilder.addParentFieldEqualsConstraint("key", epicKey);
 
         // We also want to retrieve the Epic itself
         searchUrlBuilder.addOrConstraint("key=" + epicKey);
