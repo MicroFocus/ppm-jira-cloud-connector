@@ -39,22 +39,33 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public String getTargetApplicationIcon() {
-        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAeCAYAAAA/xX6fAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAA" +
-                "AAJcEhZcwAADsMAAA7DAcdvqGQAAAR9SURBVEhL1ZZZaJxVFMfPvfe73zdNEwOGNhgtNs1SJwStUBW3igqJWyM+tAUfgtIHbfFFpaTYJpPpm" +
-                "LQqiEIbpQnBJ+sCCn2oICr0rT7kQSo1rTFSmzYmmkmmWabzbdf/t0yWyUwyEVH8wbede+7533PuMkP/C6oOpiqIFAs/1wQPn0VjtF6qiehGZ3" +
-                "2XeozU2kXXJCh3n7+rrLzsLU03XiGXPt56VO1cq2jRztqe8w84jtW+ORptlkYE/ZSCedglahuy2JcUZ3hdnaIyNPb88Lhjm91QaUJ24SCZ96x" +
-                "GgEStVM9RTBUVa1WnkheGnnIZTyChh7gQOf7M+96KW7xeorxFiK7oULFvdCcXvFNI7R4hpVBuvqr5olFS1F2vqabVRAs2Vh1ItXCNd0hNu1v" +
-                "quqbpOkJzch0n9FgMRBndgeXzXo1GO1YSzdtQ3W49rQnerulyG4Q0TeoEUfJEk2O/h165MM4U1ePWXyfV9kKrd5lgXcLdIaQ4KHRjWzYzTUp" +
-                "cgWhmbo7SMzOhdw4MEG2G8BfVCdWYT3SJYN2b7r14dKLX/Rpq6Ytlr1BUaBpNJ8dblFKXgl65oDejKo3RN9GEqs09keYFa7vcBkz8Ebg/gnEK" +
-                "b6xe8Gwps5fUI81TkwNnnAg9jAyGwu45eKmyjQ6n77cco02LRf0XZHYrxE7go8Xz9VtCkAnZlkW2mVG26TaPlpV/m93kW7rcRqHoNFKq9p3zom" +
-                "YyFqu7HGf+5PPa910DMfdB59lcMQ/PhOIqYax7YvRK+XeLT5ThQ/xHzmivIvVbaMoDK9U1NdQQU7r3xfUkU4g5i0wsvz0PvqgQekMDidAUsEuJ" +
-                "TNosU45rhJY8+Ctnal0Vagj4hTgzWYT1org9aLzu++QCRWRy2hH0/J3vuOt9G8Qqb/njSctM96Lklfn3p3JRvYGMzRoHXmJ+QvMlrI25tzFJr2" +
-                "EcrYiP37v8oBIH0jb1p0Z+fVBGIn1Syo3BwjL8lYzjL+tp4/Y1zorWwTf4RGCjhRIlz8avVz4aG0T+OkTrkFWQSQ4YTJMmiKUmJjohviE0+3i" +
-                "j904jvNjw+9S2aP/PHfzPoDVg2SKJJtzbbUb7sXlfRPQlARczOT5GM1NT4VZZOIlwLNnS0D/CnHcMHuajofs8y06an9r5ZVfRcQylF6tvyegWc9PN" +
-                "FZghF9vF9C8reFq2bZ+8kRGdg4eDbZDLMkGPX9r5FUzxCZT2A0zaZGheAkfpIutL58WsjGlZZuYkkXV0pJtdQ/H8VZlLXkGPi3F+zbHpOM79dzFX" +
-                "06F5AWyVSEkJISOyIeaYZj+ZdOzq2xVXC4l5FBT0GI7zcWlSD2J3IdN0aF4ADVj4KKNzSlnqSLJv04piHisKelyI8yS2Sw88D2FOzdDs7Q+6MTvj" +
-                "QPIrxc229CdRlDHY3CuxqqDHxTY+PRehD7GkX0VMf4crpDabSp1TBu2lz+8r9CO5jKIEPUZe52nNYn14fdmTS8/ODVuG8wyd2l5wJf8j7PpMiZqY" +
-                "vXtDbKw0NP0L/I1/3P8RRH8B2Hi5cEDZi1MAAAAASUVORK5CYII=";
+    	return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAF6WlUWHRYT" + 
+                "Uw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1" + 
+    			"wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDYgNzkuMTY0NzUzLCAyMDIxL" + 
+                "zAyLzE1LTExOjUyOjEzICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5" + 
+    			"bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8i" + 
+                "IHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL" + 
+    			"3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly" + 
+                "9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjIuMyA" + 
+    			"oTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjItMDQtMjBUMTc6MTM6NDcrMDg6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIyLTA0LTIw" + 
+                "VDE3OjE2OjE0KzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIyLTA0LTIwVDE3OjE2OjE0KzA4OjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyI" + 
+    			"gcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPS" + 
+                "J4bXAuaWlkOjExYjU5NmJlLTI1YzctNDI1Ny1hZmIyLTZjNDI5MDgyYzcwNSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo3ZDZiMTVhZC1lMG" + 
+    			"Y0LTQ2NWItOWRmOC02NzBmODVhMTY4YzgiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo3ZDZiMTVhZC1lMGY0LTQ2NWItOWRmOC" + 
+                "02NzBmODVhMTY4YzgiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW" + 
+    			"5jZUlEPSJ4bXAuaWlkOjdkNmIxNWFkLWUwZjQtNDY1Yi05ZGY4LTY3MGY4NWExNjhjOCIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0yMFQxNzoxMzo0Ny" + 
+                "swODowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIyLjMgKE1hY2ludG9zaCkiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb24" + 
+    			"9InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjExYjU5NmJlLTI1YzctNDI1Ny1hZmIyLTZjNDI5MDgyYzcwNSIgc3RFdnQ6d2hlbj0i" + 
+                "MjAyMi0wNC0yMFQxNzoxNjoxNCswODowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIyLjMgKE1hY2ludG9zaCkiIHN0R" + 
+    			"XZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXR" + 
+                "hPiA8P3hwYWNrZXQgZW5kPSJyIj8+KJIRAgAAAlpJREFUOI11krtrFHEQxz/z2/3t627VJJqkESzSqFhYqYVC8EFA8Ynio9J/x9bWygcG8QFaCEqwE" + 
+    			"LRQEDQIwRcEC3OeUW9vb+929zcWGpF4TjnMfGa+M1+ZuuigAEEY5H1+fP1CZ7lNXVWsS9bvTzZtXN+b5jbP6EsbdIvARqgvwfgUGIaHEZHdyeTa2ckJ" + 
+                "uR7+4ChKOLRwSM6iulfV3Q3WJCO9Dmx4wrWg4iD8C1kNCBBmjLU3xTOjVIp6UIyKN265amEGCP4HsBgO2CCYjZvNtX4QUuQ5AqhCH+Jxn1mr7AfsaoB" + 
+    			"B2OOH9kacNuMoSYiiiKzd6g6KuuV5oCr0UwknPuudoGBawVsBGGAHqtd8zzSCKCJqNEjWjXV61ffDvXJxl420DagaKBA7+VrvhX2m1cMzwDZxckVEJl" +
+                "TBGCGKwy5eegoxc4i8W/7CIc+nBYBCz0gwOqMP7QjHjF9IidXOiiZVwBhZ0zDh1ObtZO2YTquXuro2IoCA1lBnFLZJaYA3wGmcvvwDcSTGchWRM8A+z" + 
+    			"2/fyjv5WD1wGAN+qu9Nk50Y7htAURaMcgr0BfIL4hxNgctBUN/tZd20yDIZDDI0rhaKRTni+rzCUK98QYG3KGfV6dO/5MRpOtZAHd0sp0rj+aVHcqL8z" + 
+                "jwGt9oHCiwA51B9LPrrHkES4NmIfrn0+tuDuZPV197879qhTgT4AJyvPX3sAFcrZeUWXdk67brZm99nHupEUKhLcCUfq5oLSc7LwVKel657XNXNI//O8/9" + 
+    			"uNiFMbhW0BhU+eMrJj5/6Y27ZPR+yKQA/Afh0Cs6cpogTAAAAAElFTkSuQmCC";
     }
 
     @Override
