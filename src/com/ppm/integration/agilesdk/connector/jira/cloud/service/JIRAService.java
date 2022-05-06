@@ -352,7 +352,7 @@ public class JIRAService {
 
         // Then we retrieve Sprints details for each Scrum board.
         for (JIRABoard board : boards) {
-            if (!"scrum".equalsIgnoreCase(board.getType())) {
+            if (!"scrum".equalsIgnoreCase(board.getType()) && !"simple".equalsIgnoreCase(board.getType())) {
                 continue;
             }
             try {
