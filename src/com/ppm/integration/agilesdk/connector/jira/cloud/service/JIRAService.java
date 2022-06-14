@@ -606,11 +606,6 @@ public class JIRAService {
             throw new RuntimeException(
                     "We couldn't retrieve the Sprint ID mandatory custom field ID from JIRA fields metadata");
         }
-
-        if (customFields.storyPointsCustomField == null) {
-            throw new RuntimeException(
-                    "We couldn't retrieve the Story Points mandatory custom field ID from JIRA fields metadata");
-        }
     }
 
     /**
