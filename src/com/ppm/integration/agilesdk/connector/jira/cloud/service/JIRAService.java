@@ -1301,6 +1301,11 @@ public class JIRAService {
         JIRATimesheetData timesheetData = new JIRATimesheetData();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        
+        if (getCustomFields().storyPointsCustomField == null) {
+            throw new RuntimeException(
+                    "We couldn't retrieve the Story Points mandatory custom field ID from JIRA fields metadata");
+        }
 
         // By default only Stories & Epics have story points in JIRA, but we'll just filter to keep only issues that have SP defined anyway.
         JiraIssuesRetrieverUrlBuilder spTimesheetUrlBuilder = new JiraIssuesRetrieverUrlBuilder(baseUri)
