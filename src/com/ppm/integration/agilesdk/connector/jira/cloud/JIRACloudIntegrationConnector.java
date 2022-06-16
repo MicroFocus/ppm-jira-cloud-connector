@@ -16,11 +16,15 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAProject;
 import com.ppm.integration.agilesdk.model.AgileProject;
 import com.ppm.integration.agilesdk.ui.*;
 
+import org.apache.log4j.Logger;
+
 /**
  * Main Connector class file for Jira Cloud connector.
  * Note that the Jira Cloud version is purely informative - there is no version for Jira Cloud.
  */
 public class JIRACloudIntegrationConnector extends IntegrationConnector {
+
+    private final Logger logger = Logger.getLogger(this.getClass());
 
     @Override
     public String getExternalApplicationName() {
@@ -29,12 +33,12 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public String getExternalApplicationVersionIndication() {
-        return "2020+";
+        return "2022+";
     }
 
     @Override
     public String getConnectorVersion() {
-        return "3.1";
+        return "4.0";
     }
 
     @Override
@@ -138,6 +142,22 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
     @Override
     public List<String> getIntegrationClasses() {
         return Arrays.asList(new String[] {"com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudWorkPlanIntegration","com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudTimeSheetIntegration", "com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudPortfolioEpicIntegration", "com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudAgileDataIntegration", "com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudRequestIntegration"});
+    }
+
+    @Override
+    /** @since 10.0.3 */
+    public String testConnection(ValueSet instanceConfigurationParameters) {
+        // Overriding this method as making a call to /rest/api/2/myself is faster then retrieving the whole list of projects.
+        try {
+            String myselfInfo = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getMyselfInfo();
+            logger.debug("Test Connection successful. Returned myself info:");
+            logger.debug(myselfInfo);
+        } catch (Exception e) {
+            logger.error("Error when testing connectivity", e);
+            return e.getMessage();
+        }
+
+        return null;
     }
 
     private DynamicDropdown getUserDataDDL(String elementName,
