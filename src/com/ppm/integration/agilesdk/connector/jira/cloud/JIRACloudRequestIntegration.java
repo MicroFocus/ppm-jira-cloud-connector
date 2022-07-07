@@ -8,6 +8,7 @@ import static com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants.JI
 
 import java.util.*;
 
+import com.hp.ppm.common.model.AgileEntityIdName;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAAgileEntity;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAFieldInfo;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAIssueType;
@@ -17,7 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.hp.ppm.common.model.IdProjectDate;
+import com.hp.ppm.common.model.AgileEntityIdProjectDate;
 import com.hp.ppm.integration.model.AgileEntityFieldValue;
 import com.ppm.integration.agilesdk.ValueSet;
 import com.ppm.integration.agilesdk.dm.DataField;
@@ -421,18 +422,33 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
 
     @Override
     /** @since 10.0.3 */
-    public List<IdProjectDate> getAgileEntityIDsToCreateInPPM(final String agileProjectValue, final String entityType,
-                                                              final ValueSet instanceConfigurationParameters, Date createdSinceDate) {
+    public List<AgileEntityIdProjectDate> getAgileEntityIDsToCreateInPPM(final String agileProjectValue, final String entityType,
+                                                                         final ValueSet instanceConfigurationParameters, Date createdSinceDate) {
 
         // We have no way to know if some of the issues in Jira are already mapped in PPM, so we'll return all of them.
         if (agileProjectValue == null || entityType.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<IdProjectDate> entities = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getAgileEntityIdsCreatedSince( ("*".equals(agileProjectValue) ? null : agileProjectValue), entityType, createdSinceDate);
+        List<AgileEntityIdProjectDate> entities = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getAgileEntityIdsCreatedSince( ("*".equals(agileProjectValue) ? null : agileProjectValue), entityType, createdSinceDate);
 
         return entities;
 
+    }
+
+    @Override
+    /** @since 10.0.3 */
+    public boolean supportsPPMRequestToExistingAgileEntitySync() {
+        return true;
+    }
+
+    @Override
+    /** @since 10.0.3 */
+    public List<AgileEntityIdName> getCandidateEntitiesToSyncWithRequests(final String agileProjectValue, final String entityType,
+                                                                          final ValueSet instanceConfigurationParameters) {
+        List<AgileEntityIdName> entities = JIRAServiceProvider.get(instanceConfigurationParameters).useAdminAccount().getAgileEntityIdsAndNames(agileProjectValue, entityType);
+
+        return entities;
     }
 
 }
