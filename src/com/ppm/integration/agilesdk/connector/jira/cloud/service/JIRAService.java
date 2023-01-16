@@ -4,6 +4,8 @@
 
 package com.ppm.integration.agilesdk.connector.jira.cloud.service;
 
+import com.hp.ppm.common.model.AgileEntityIdName;
+import com.hp.ppm.common.model.AgileEntityIdProjectDate;
 import com.hp.ppm.user.model.User;
 import com.ppm.integration.agilesdk.ValueSet;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.*;
@@ -26,8 +28,6 @@ import org.json.JSONObject;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -132,6 +132,32 @@ public class JIRAService {
         List<JIRASubTaskableIssue> descendants = retrieveIssues(searchUrlBuilder, true);
 
         return descendants;
+    }
+
+    public List<AgileEntityIdName> getAgileEntityIdsAndNames(String agileProjectValue, String entityType) {
+        JiraIssuesRetrieverUrlBuilder searchUrlBuilder =
+                new JiraIssuesRetrieverUrlBuilder(baseUri).retrieveOnlyFields("key", "issuetype", "summary");
+
+        if (!StringUtils.isBlank(agileProjectValue)) {
+            searchUrlBuilder.setProjectKey(agileProjectValue);
+        }
+
+        if (!StringUtils.isBlank(entityType)) {
+            searchUrlBuilder.setStandardIssueTypes(entityType);
+        }
+
+        IssueRetrievalResult result =
+                runIssueRetrievalRequest(decorateOrderBySprintCreatedUrl(searchUrlBuilder).toUrlString());
+
+        List<AgileEntityIdName> results = new ArrayList<>(result.getIssues().size());
+
+        for (JSONObject obj : result.getIssues()) {
+            JIRAIssue issue = getIssueFromJSONObj(obj);
+            AgileEntityIdName idAndName = new AgileEntityIdName(issue.getKey(), "[" + issue.getKey() + "] " + issue.getName());
+            results.add(idAndName);
+        }
+
+        return results;
     }
 
     private class CustomFields {
@@ -253,6 +279,11 @@ public class JIRAService {
         }
 
         return allIssueTypes;
+    }
+
+    public String getMyselfInfo() {
+        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.MYSELF_SUFFIX);
+        return response.getEntity(String.class);
     }
 
     public List<JIRAProject> getProjects() {
@@ -751,6 +782,37 @@ public class JIRAService {
         return retrieveAgileEntities(fieldsInfo, searchUrlBuilder);
     }
 
+    public List<AgileEntityIdProjectDate> getAgileEntityIdsCreatedSince(String agileProjectValue, String entityType, Date createdSinceDate) {
+
+        JiraIssuesRetrieverUrlBuilder searchUrlBuilder =
+                new JiraIssuesRetrieverUrlBuilder(baseUri).retrieveOnlyFields("key", "issuetype", "created", "summary");
+
+        if (!StringUtils.isBlank(agileProjectValue)) {
+            searchUrlBuilder.setProjectKey(agileProjectValue);
+        }
+
+        if (!StringUtils.isBlank(entityType)) {
+            searchUrlBuilder.setStandardIssueTypes(entityType);
+        }
+
+        if (createdSinceDate != null) {
+            searchUrlBuilder.addAndConstraint("created>='" + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(createdSinceDate) + "'");
+        }
+
+        IssueRetrievalResult result =
+                runIssueRetrievalRequest(decorateOrderBySprintCreatedUrl(searchUrlBuilder).toUrlString());
+
+        List<AgileEntityIdProjectDate> results = new ArrayList<>(result.getIssues().size());
+
+        for (JSONObject obj : result.getIssues()) {
+            JIRAIssue issue = getIssueFromJSONObj(obj);
+            AgileEntityIdProjectDate idProjectDate = new AgileEntityIdProjectDate(issue.getKey(), issue.getProjectKey(), issue.getCreationDateAsDate());
+            results.add(idProjectDate);
+        }
+
+        return results;
+    }
+
     /**
      * We use the search issue API instead of the /rest/issue/{key} because we already have all
      * the logic to get the right columns and build the right JIRAIssue in the search API.
@@ -1151,7 +1213,7 @@ public class JIRAService {
             }
             //issue.setEpicKey(fields.getString(getCustomFields().epicLinkCustomField));
 
-            if (getCustomFields().portfolioParentCustomField != null) {
+            if (getCustomFields().portfolioParentCustomField != null && fields.has(getCustomFields().portfolioParentCustomField)) {
                 issue.setPortfolioParentKey(fields.getString(getCustomFields().portfolioParentCustomField));
             }
 
