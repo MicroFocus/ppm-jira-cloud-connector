@@ -33,7 +33,7 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public String getExternalApplicationVersionIndication() {
-        return "2022+";
+        return "2023+";
     }
 
     @Override
