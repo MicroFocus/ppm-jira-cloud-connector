@@ -32,7 +32,9 @@ import com.ppm.integration.agilesdk.model.AgileEntityInfo;
 
 public class JIRACloudRequestIntegration extends RequestIntegration {
 
-    @Override public List<AgileEntityInfo> getAgileEntitiesInfo(String agileProjectValue,  ValueSet instanceConfigurationParameters) {
+    private static final int ISSUES_BATCH_SIZE = 200;
+
+    @Override public List<AgileEntityInfo> getAgileEntitiesInfo(String agileProjectValue, ValueSet instanceConfigurationParameters) {
 
         List<JIRAIssueType> issueTypes = JIRAServiceProvider.get(instanceConfigurationParameters).getProjectIssueTypes(agileProjectValue);
 
@@ -396,10 +398,14 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
         	fieldsInfo = JIRAServiceProvider.get(instanceConfigurationParameters).getFields(agileProjectValue, entityType);
         }
 
-        List<JIRAAgileEntity> jiraEntities = JIRAServiceProvider.get(instanceConfigurationParameters).getAgileEntityIssuesModifiedSince(fieldsInfo, entityIds, modifiedSinceDate);
+        List<AgileEntity> entities = new ArrayList<>(entityIds.size());
 
-        List<AgileEntity> entities = new ArrayList<>(jiraEntities.size());
-        entities.addAll(jiraEntities);
+        List<List<String>> batchedEntityIds = com.google.common.collect.Lists.partition(new ArrayList<>(entityIds), ISSUES_BATCH_SIZE);
+
+        for (List<String> entityIdsBatch : batchedEntityIds) {
+            List<JIRAAgileEntity> jiraEntities = JIRAServiceProvider.get(instanceConfigurationParameters).getAgileEntityIssuesModifiedSince(fieldsInfo, entityIdsBatch, modifiedSinceDate);
+            entities.addAll(jiraEntities);
+        }
 
         return entities;
     }

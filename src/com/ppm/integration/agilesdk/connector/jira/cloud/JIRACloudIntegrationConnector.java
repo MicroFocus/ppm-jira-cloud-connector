@@ -38,7 +38,7 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
     @Override
     public String getConnectorVersion() {
-        return "4.0";
+        return "4.1";
     }
 
     @Override
