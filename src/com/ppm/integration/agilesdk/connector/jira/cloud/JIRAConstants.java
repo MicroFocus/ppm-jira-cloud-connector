@@ -178,6 +178,8 @@ public class JIRAConstants {
 
     public static final String JIRA_STORY_POINTS_CUSTOM_NAME = "Story Points";
 
+    public static final String JIRA_STORY_POINT_ESTIMATE_CUSTOM = "com.pyxis.greenhopper.jira:jsw-story-points";
+
     public static final String JIRA_SPRINT_CUSTOM = "com.pyxis.greenhopper.jira:gh-sprint";
 
     public static final String JIRA_EPIC_LINK_CUSTOM = "com.pyxis.greenhopper.jira:gh-epic-link";
