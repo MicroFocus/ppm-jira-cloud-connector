@@ -177,21 +177,29 @@ public class JIRAService {
 
         public String storyPointsCustomField = null;
 
+        public String storyPointEstimateCustomField = null;
+
         public String sprintIdCustomField = null;
 
         public String portfolioParentCustomField = null;
 
         /**
-         * @return All Jira custom fields needed all of the time: epic name & link, story points, sprint, and (if using Jira Portfolio) Portfolio Parent.
+         * @return All Jira custom fields needed all of the time: epic name & link, story points, story points estimate, sprint, and (if using Jira Portfolio) Portfolio Parent.
          */
         public String[] getJiraCustomFields() {
-            if (portfolioParentCustomField == null) {
-                return new String[] {epicNameCustomField, epicLinkCustomField, storyPointsCustomField,
-                        sprintIdCustomField};
-            } else {
-                return new String[] {epicNameCustomField, epicLinkCustomField, storyPointsCustomField,
-                        sprintIdCustomField, portfolioParentCustomField};
+            List<String> customFields = new ArrayList(Arrays.asList(new String[] {epicNameCustomField, epicLinkCustomField, storyPointsCustomField,
+                    sprintIdCustomField}));
+
+
+            if (portfolioParentCustomField != null) {
+                customFields.add(portfolioParentCustomField);
             }
+
+            if (storyPointEstimateCustomField != null) {
+                customFields.add(storyPointEstimateCustomField);
+            }
+
+            return customFields.toArray(new String[customFields.size()]);
         }
     }
 
@@ -622,6 +630,10 @@ public class JIRAService {
 
                         if (JIRAConstants.JIRA_STORY_POINTS_CUSTOM_NAME.equalsIgnoreCase(name)) {
                             customFields.storyPointsCustomField = field.getString("id");
+                        }
+
+                        if (JIRAConstants.JIRA_STORY_POINT_ESTIMATE_CUSTOM.equalsIgnoreCase(customType)) {
+                            customFields.storyPointEstimateCustomField = field.getString("id");
                         }
                         if (JIRAConstants.JIRA_PORTFOLIO_PARENT_CUSTOM.equalsIgnoreCase(customType)) {
                             customFields.portfolioParentCustomField = field.getString("id");
@@ -1227,8 +1239,14 @@ public class JIRAService {
                 issue.setPortfolioParentKey(fields.getString(getCustomFields().portfolioParentCustomField));
             }
 
-            issue.setStoryPoints((fields.has(getCustomFields().storyPointsCustomField) && !fields.isNull(getCustomFields().storyPointsCustomField)) ?
-                    new Double(fields.getDouble(getCustomFields().storyPointsCustomField)).longValue() : null);
+            // We read story points from Story Point custom field, or from Estimated Story Points custom field.
+            if (getCustomFields().storyPointsCustomField != null && fields.has(getCustomFields().storyPointsCustomField) && !fields.isNull(getCustomFields().storyPointsCustomField)) {
+                issue.setStoryPoints(new Double(fields.getDouble(getCustomFields().storyPointsCustomField)).longValue());
+            } else if (getCustomFields().storyPointEstimateCustomField != null && fields.has(getCustomFields().storyPointEstimateCustomField) && !fields.isNull(getCustomFields().storyPointEstimateCustomField)){
+                issue.setStoryPoints(new Double(fields.getDouble(getCustomFields().storyPointEstimateCustomField)).longValue());
+            } else {
+                issue.setStoryPoints(null);
+            }
 
             issue.setFixVersionIds(extractFixVersionIds(fields));
 
@@ -1374,20 +1392,25 @@ public class JIRAService {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         
-        if (getCustomFields().storyPointsCustomField == null) {
+        if (getCustomFields().storyPointsCustomField == null && getCustomFields().storyPointEstimateCustomField == null) {
             throw new RuntimeException(
-                    "We couldn't retrieve the Story Points mandatory custom field ID from JIRA fields metadata");
+                    "We couldn't retrieve the Story Points or story points estimate mandatory custom field ID from JIRA fields metadata");
         }
 
         // By default only Stories & Epics have story points in JIRA, but we'll just filter to keep only issues that have SP defined anyway.
         JiraIssuesRetrieverUrlBuilder spTimesheetUrlBuilder = new JiraIssuesRetrieverUrlBuilder(baseUri)
                 .addExtraFields(JIRAConstants.JIRA_FIELD_RESOLUTION_DATE).addExtraFields(getCustomFields().getJiraCustomFields())
                 // We want story points to be defined.
-                .addNonNullCustomField(getCustomFields().storyPointsCustomField)
                 // We only want to get issues that were assigned to the user at some point during timesheet period
                 .addAndConstraint("assignee was '"+encodeForJQLQuery(author)+"' during ('"+dateFrom.toString().substring(0, 10) + "','"+ dateTo.toString().substring(0, 10) + "')")
                 // We only care about Done and in Progress issues.
                 .addAndConstraint("status != 'To Do'");
+        if (getCustomFields().storyPointsCustomField != null) {
+            spTimesheetUrlBuilder.addNonNullCustomField(getCustomFields().storyPointsCustomField);
+        }
+        if (getCustomFields().storyPointEstimateCustomField != null) {
+            spTimesheetUrlBuilder.addNonNullCustomField(getCustomFields().storyPointEstimateCustomField);
+        }
 
 
         // We also don't want to retrieve issues that have been last updated over 1 month before timesheet period, that should remove all issues that have been closed a long time ago.
