@@ -1365,7 +1365,19 @@ public class JIRAService {
                         .addExtraFields(getCustomFields().getJiraCustomFields());
 
         // Retrieving only issues belonging to that epic
-        searchUrlBuilder.addParentFieldEqualsConstraint("key", epicKey);
+        // for company-managed projects, issues' epic key on custom fields
+        // for team-managed projects, issues' epic key on parent's fields
+        StringBuilder constraint = new StringBuilder("(")
+                .append("parent[key]=" + epicKey );
+        
+        if (getCustomFields().epicLinkCustomField != null) {
+        	constraint.append(" or ");
+        	constraint.append("cf["+getCustomFields().epicLinkCustomField.substring("customfield_".length())+"]=" + epicKey);
+        }
+        constraint.append(") ");
+        
+
+        searchUrlBuilder.addAndConstraint(constraint.toString());
 
         // We also want to retrieve the Epic itself
         searchUrlBuilder.addOrConstraint("key=" + epicKey);
