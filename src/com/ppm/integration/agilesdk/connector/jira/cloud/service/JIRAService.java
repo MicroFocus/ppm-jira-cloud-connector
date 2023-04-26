@@ -1340,10 +1340,14 @@ public class JIRAService {
         // for company-managed projects, issues' epic key on custom fields
         // for team-managed projects, issues' epic key on parent's fields
         StringBuilder constraint = new StringBuilder("(")
-                .append("cf["+getCustomFields().epicLinkCustomField.substring("customfield_".length())+"]=" + epicKey )
-                .append(" or ")
-                .append("parent[key]=" + epicKey )
-                .append(") ");
+                .append("parent[key]=" + epicKey );
+        
+        if (getCustomFields().epicLinkCustomField != null) {
+        	constraint.append(" or ");
+        	constraint.append("cf["+getCustomFields().epicLinkCustomField.substring("customfield_".length())+"]=" + epicKey);
+        }
+        constraint.append(") ");
+        
 
         searchUrlBuilder.addAndConstraint(constraint.toString());
 
