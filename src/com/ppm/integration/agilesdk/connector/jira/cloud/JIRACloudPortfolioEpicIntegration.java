@@ -29,10 +29,10 @@ public class JIRACloudPortfolioEpicIntegration extends PortfolioEpicIntegration 
     // All operations for Portfolio Epics are using the admin account as users are not prompted for account info upon sync.
 
 
-    @Override public String createEpicInAgileProject(PortfolioEpicCreationInfo epicInfo, String agileProjectValue,
+    @Override public String createEpicInAgileProject(PortfolioEpicCreationInfo epicInfo, String agileProjectValue, boolean isCompanyMangedProject, long agileProjectId,
             ValueSet instanceConfigurationParameters)
     {
-        return JIRAServiceProvider.get(instanceConfigurationParameters).createEpic(agileProjectValue, epicInfo.getEpicName(), epicInfo.getEpicDescription());
+        return JIRAServiceProvider.get(instanceConfigurationParameters).createEpic(agileProjectValue, isCompanyMangedProject, agileProjectId, epicInfo.getEpicName(), epicInfo.getEpicDescription());
     }
 
     @Override public PortfolioEpicSyncInfo getPortfolioEpicSyncInfo(String epicId, String agileProjectValue,

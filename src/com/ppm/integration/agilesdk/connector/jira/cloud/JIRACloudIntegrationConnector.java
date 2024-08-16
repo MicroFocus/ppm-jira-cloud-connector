@@ -128,6 +128,8 @@ public class JIRACloudIntegrationConnector extends IntegrationConnector {
             AgileProject agileProject = new AgileProject();
             agileProject.setDisplayName(jiraProject.getName());
             agileProject.setValue(jiraProject.getKey());
+            agileProject.setCompanyManagedProject(jiraProject.isCompanyMangedProject());
+            agileProject.setAgileProjectId(jiraProject.getJiraProjectId());
             agileProjects.add(agileProject);
         }
 
