@@ -13,6 +13,10 @@ public class JIRAProject {
     private String key;
 
     private String name;
+    
+    private boolean isCompanyManagedProject = false;
+    
+    private long jiraProjectId;
 
     public String getKey() {
         return key;
@@ -29,13 +33,30 @@ public class JIRAProject {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public boolean isCompanyManagedProject() {
+		return isCompanyManagedProject;
+	}
 
+	public void setCompanyManagedProject(boolean isCompanyManagedProject) {
+		this.isCompanyManagedProject = isCompanyManagedProject;
+	}
+
+	public long getJiraProjectId() {
+		return jiraProjectId;
+	}
+
+	public void setJiraProjectId(long jiraProjectId) {
+		this.jiraProjectId = jiraProjectId;
+	}
 
     public static JIRAProject fromJSONObject(JSONObject obj) {
         try {
             JIRAProject project = new JIRAProject();
             project.setName(obj.getString("name"));
             project.setKey(obj.getString("key"));
+            project.setCompanyManagedProject("classic".equals(obj.getString("style")));
+            project.setJiraProjectId(obj.getLong("id"));
             return project;
         } catch (JSONException e) {
             throw new RuntimeException("Error while reading JSon defintiion of Project", e);

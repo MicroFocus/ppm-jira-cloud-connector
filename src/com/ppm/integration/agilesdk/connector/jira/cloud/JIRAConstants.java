@@ -185,6 +185,8 @@ public class JIRAConstants {
     public static final String JIRA_EPIC_LINK_CUSTOM = "com.pyxis.greenhopper.jira:gh-epic-link";
 
     public static final String JIRA_EPIC_NAME_CUSTOM = "com.pyxis.greenhopper.jira:gh-epic-label";
+    
+    public static final String JIRA_EPIC_NAME_IN_TEAM_MANAGED_PROJECT = "Epic Name";
 
     public static final String JIRA_PORTFOLIO_PARENT_CUSTOM =  "com.atlassian.jpo:jpo-custom-field-parent";
 

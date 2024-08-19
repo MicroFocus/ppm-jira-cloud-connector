@@ -182,6 +182,8 @@ public class JIRAService {
         public String sprintIdCustomField = null;
 
         public String portfolioParentCustomField = null;
+        
+        public Map<Long, String> teamProjectEpicNameCustomField = new HashMap<>();
 
         /**
          * @return All Jira custom fields needed all of the time: epic name & link, story points, story points estimate, sprint, and (if using Jira Portfolio) Portfolio Parent.
@@ -587,10 +589,19 @@ public class JIRAService {
         initCustomFieldsInfo();
 
         Map<String, String> fields = new HashMap<>();
+        
+        JIRAProject project = getProject(projectKey);
 
         fields.put("summary", epicName);
         if (getCustomFields().epicNameCustomField != null) {
-            fields.put(getCustomFields().epicNameCustomField, epicName);
+        	CustomFields customFields = getCustomFields();
+        	String epicNameField = null;
+        	if (project.isCompanyManagedProject()) {
+        		epicNameField = customFields.epicNameCustomField;
+        	} else {
+        		epicNameField = customFields.teamProjectEpicNameCustomField.get(new Long(project.getJiraProjectId()));
+        	}
+            fields.put(epicNameField, epicName);
         }
         fields.put("description", epicDescription);
 
@@ -638,6 +649,19 @@ public class JIRAService {
                         if (JIRAConstants.JIRA_PORTFOLIO_PARENT_CUSTOM.equalsIgnoreCase(customType)) {
                             customFields.portfolioParentCustomField = field.getString("id");
                         }
+                    }
+                    
+                    if (field.has("scope")) {
+                    	JSONObject scope = field.getJSONObject("scope");
+                    	if (scope.has("type") && "PROJECT".equals(scope.get("type")) && scope.has("project")) {
+                    		JSONObject project = scope.getJSONObject("project");
+                    		if (project.has("id")) {
+                    			Long projectId = project.getLong("id");
+                    			if (JIRAConstants.JIRA_EPIC_NAME_IN_TEAM_MANAGED_PROJECT.equals(field.getString("name"))) {
+                    				customFields.teamProjectEpicNameCustomField.put(projectId, field.getString("id"));
+                    			}
+                    		}
+                    	}
                     }
                 }
             }
