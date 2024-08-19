@@ -589,10 +589,19 @@ public class JIRAService {
         initCustomFieldsInfo();
 
         Map<String, String> fields = new HashMap<>();
+        
+        JIRAProject project = getProject(projectKey);
 
         fields.put("summary", epicName);
         if (getCustomFields().epicNameCustomField != null) {
-            fields.put(getCustomFields().epicNameCustomField, epicName);
+        	CustomFields customFields = getCustomFields();
+        	String epicNameField = null;
+        	if (project.isCompanyMangedProject()) {
+        		epicNameField = customFields.epicNameCustomField;
+        	} else {
+        		epicNameField = customFields.teamProjectEpicNameCustomField.get(new Long(project.getJiraProjectId()));
+        	}
+            fields.put(epicNameField, epicName);
         }
         fields.put("description", epicDescription);
 
