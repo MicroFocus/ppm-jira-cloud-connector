@@ -14,7 +14,7 @@ public class JIRAProject {
 
     private String name;
     
-    private boolean isCompanyMangedProject = false;
+    private boolean isCompanyManagedProject = false;
     
     private long jiraProjectId;
 
@@ -34,12 +34,12 @@ public class JIRAProject {
         this.name = name;
     }
     
-    public boolean isCompanyMangedProject() {
-		return isCompanyMangedProject;
+    public boolean isCompanyManagedProject() {
+		return isCompanyManagedProject;
 	}
 
-	public void setCompanyMangedProject(boolean isCompanyMangedProject) {
-		this.isCompanyMangedProject = isCompanyMangedProject;
+	public void setCompanyManagedProject(boolean isCompanyManagedProject) {
+		this.isCompanyManagedProject = isCompanyManagedProject;
 	}
 
 	public long getJiraProjectId() {
@@ -55,7 +55,7 @@ public class JIRAProject {
             JIRAProject project = new JIRAProject();
             project.setName(obj.getString("name"));
             project.setKey(obj.getString("key"));
-            project.setCompanyMangedProject("classic".equals(obj.getString("style")));
+            project.setCompanyManagedProject("classic".equals(obj.getString("style")));
             project.setJiraProjectId(obj.getLong("id"));
             return project;
         } catch (JSONException e) {

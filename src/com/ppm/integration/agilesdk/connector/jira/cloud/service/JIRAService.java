@@ -596,7 +596,7 @@ public class JIRAService {
         if (getCustomFields().epicNameCustomField != null) {
         	CustomFields customFields = getCustomFields();
         	String epicNameField = null;
-        	if (project.isCompanyMangedProject()) {
+        	if (project.isCompanyManagedProject()) {
         		epicNameField = customFields.epicNameCustomField;
         	} else {
         		epicNameField = customFields.teamProjectEpicNameCustomField.get(new Long(project.getJiraProjectId()));
