@@ -715,6 +715,8 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                     }
                     sprintIssues.add(issue);
                 }
+                
+                cleanEmptySprints(issuesBySprintId);
 
                 for (final String sprintId : issuesBySprintId.keySet()) {
 
@@ -947,6 +949,19 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                 }
             }
         };
+    }
+    
+    private void cleanEmptySprints(final Map<String, List<JIRASubTaskableIssue>> issuesBySprintId) {
+    	List<String> removedSprints = new ArrayList<String>();
+    	for (final String sprintId : issuesBySprintId.keySet()) {
+    		List<JIRASubTaskableIssue> sprintIssues = issuesBySprintId.get(sprintId);
+    		if (sprintIssues.size() == 0) {
+    			removedSprints.add(sprintId);
+    		}
+    	}
+    	for (final String sprintId: removedSprints) {
+    		issuesBySprintId.remove(sprintId);
+        }
     }
 
     @Override
