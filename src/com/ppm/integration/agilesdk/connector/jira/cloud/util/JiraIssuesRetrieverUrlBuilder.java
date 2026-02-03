@@ -23,7 +23,7 @@ public class JiraIssuesRetrieverUrlBuilder {
 
     private int maxResults = 1000;
 
-    private int startAt = 0;
+    private String nextPageToken = null;
 
     private String boardId;
 
@@ -101,7 +101,7 @@ public class JiraIssuesRetrieverUrlBuilder {
                 searchUrl.append(JIRAConstants.BOARD_SUFFIX + "/" + boardId + "/issue?");
                 break;
             default: // SEARCH
-                searchUrl.append(JIRAConstants.API_VERSION2_API_ROOT + "search?");
+                searchUrl.append(JIRAConstants.API_VERSION3_API_ROOT + "search/jql?");
         }
 
 
@@ -111,7 +111,9 @@ public class JiraIssuesRetrieverUrlBuilder {
             urlParameters.add("maxResults=" + maxResults);
         }
 
-        urlParameters.add("startAt=" + startAt);
+        if(nextPageToken != null){
+            urlParameters.add("nextPageToken=" + nextPageToken);
+        }
 
         if (!StringUtils.isBlank(expandLevel)) {
             urlParameters.add("expand=" + expandLevel);
@@ -242,8 +244,8 @@ public class JiraIssuesRetrieverUrlBuilder {
         return this;
     }
 
-    public void setStartAt(int startAt) {
-        this.startAt = startAt;
+    public void setNextPageToken(String nextPageToken) {
+        this.nextPageToken = nextPageToken;
     }
 
     // The OR constraints will be added next to all the AND constraints.

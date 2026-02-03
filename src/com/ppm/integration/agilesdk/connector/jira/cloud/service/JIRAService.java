@@ -149,12 +149,11 @@ public class JIRAService {
         List<AgileEntityIdName> results = new ArrayList<>();
 
         IssueRetrievalResult result = null;
-        int fetchedResults = 0;
-        searchUrlBuilder.setStartAt(0);
-
+        String nextPageToken = null;
         searchUrlBuilder = decorateOrderBySprintCreatedUrl(searchUrlBuilder);
 
         do {
+            searchUrlBuilder.setNextPageToken(nextPageToken);
             result = runIssueRetrievalRequest(searchUrlBuilder.toUrlString());
             for (JSONObject obj : result.getIssues()) {
                 JIRAIssue issue = getIssueFromJSONObj(obj);
@@ -162,10 +161,8 @@ public class JIRAService {
                         new AgileEntityIdName(issue.getKey(), "[" + issue.getKey() + "] " + issue.getName());
                 results.add(idAndName);
             }
-            fetchedResults += result.getMaxResults();
-            searchUrlBuilder.setStartAt(fetchedResults);
-
-        } while (fetchedResults < result.getTotal());
+            nextPageToken = result.getNextPageToken();
+        } while (nextPageToken != null);
 
         return results;
     }
@@ -992,21 +989,19 @@ public class JIRAService {
     private List<JIRAAgileEntity> retrieveAgileEntities(Map<String, JIRAFieldInfo> fieldsInfo, JiraIssuesRetrieverUrlBuilder searchUrlBuilder) {
 
         IssueRetrievalResult result = null;
-        int fetchedResults = 0;
-        searchUrlBuilder.setStartAt(0);
-
+        String nextPageToken = null;
         List<JIRAAgileEntity> allIssues = new ArrayList<JIRAAgileEntity>();
 
         do {
+            searchUrlBuilder.setNextPageToken(nextPageToken);
             result = runIssueRetrievalRequest(searchUrlBuilder.toUrlString());
             for (JSONObject obj : result.getIssues()) {
                 allIssues.add(AgileEntityUtils.getAgileEntityFromIssueJSon(fieldsInfo, obj, getBaseUrl()));
             }
 
-            fetchedResults += result.getMaxResults();
-            searchUrlBuilder.setStartAt(fetchedResults);
+            nextPageToken = result.getNextPageToken();
 
-        } while (fetchedResults < result.getTotal());
+        } while (nextPageToken != null);
 
         return allIssues;
     }
@@ -1015,19 +1010,18 @@ public class JIRAService {
     private List<JIRAIssue> fetchResults(JiraIssuesRetrieverUrlBuilder searchUrlBuilder) {
         IssueRetrievalResult result = null;
         int fetchedResults = 0;
-        searchUrlBuilder.setStartAt(0);
 
         List<JIRAIssue> issues = new ArrayList<JIRAIssue>();
+        String nextPageToken = null;
 
         do {
+            searchUrlBuilder.setNextPageToken(nextPageToken);
             result = runIssueRetrievalRequest(searchUrlBuilder.toUrlString());
             for (JSONObject issueObj : result.getIssues()) {
                 issues.add(getIssueFromJSONObj(issueObj));
             }
-            fetchedResults += result.getMaxResults();
-            searchUrlBuilder.setStartAt(fetchedResults);
-
-        } while (fetchedResults < result.getTotal());
+            nextPageToken = result.getNextPageToken();
+        } while (nextPageToken != null);
 
         return issues;
     }
@@ -1176,10 +1170,8 @@ public class JIRAService {
 
         try {
             JSONObject resultObj = new JSONObject(jsonStr);
-
             IssueRetrievalResult result =
-                    new IssueRetrievalResult(resultObj.getInt("startAt"), resultObj.getInt("maxResults"),
-                            resultObj.getInt("total"));
+                    new IssueRetrievalResult(resultObj.optString("nextPageToken",null));
 
             JSONArray issues = resultObj.getJSONArray("issues");
 

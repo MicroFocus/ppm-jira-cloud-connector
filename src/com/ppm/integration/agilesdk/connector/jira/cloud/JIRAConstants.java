@@ -115,6 +115,8 @@ public class JIRAConstants {
 
     public static final String API_VERSION2_API_ROOT = "/rest/api/2/";
 
+    public static final String API_VERSION3_API_ROOT = "/rest/api/3/";
+
     public static final String PORTFOLIO_HIERARCHY_REST = "/rest/jpo-api/1.0/hierarchy";
 
     public static final String SEARCH_USER = API_VERSION2_API_ROOT + "user/search";

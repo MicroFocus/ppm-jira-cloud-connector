@@ -13,16 +13,10 @@ public class IssueRetrievalResult {
 
     private List<JSONObject> issues = new ArrayList<>();
 
-    private int startAt;
+    private  String  nextPageToken;
 
-    private int maxResults;
-
-    private int total;
-
-    public IssueRetrievalResult(int startAt, int maxResults, int total) {
-        this.startAt = startAt;
-        this.maxResults = maxResults;
-        this.total = total;
+    public IssueRetrievalResult(String nextPageToken) {
+      this.nextPageToken = nextPageToken;
     }
 
     public List<JSONObject> getIssues() {
@@ -33,15 +27,8 @@ public class IssueRetrievalResult {
         issues.add(issue);
     }
 
-    public int getStartAt() {
-        return startAt;
+    public String getNextPageToken() {
+        return nextPageToken;
     }
 
-    public int getMaxResults() {
-        return maxResults;
-    }
-
-    public int getTotal() {
-        return total;
-    }
 }
