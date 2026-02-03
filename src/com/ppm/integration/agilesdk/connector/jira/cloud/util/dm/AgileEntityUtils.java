@@ -21,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +135,19 @@ public class AgileEntityUtils {
 						entity.addField(fieldKey, null);
 					}
 
-				} else if (fieldContents instanceof JSONObject) {					
+				} else if(fieldInfo != null
+						&& fieldInfo.getType().equalsIgnoreCase(JIRAConstants.KEY_FIELD_TYPE_DATE)){
+					if (fieldContents != JSONObject.NULL) {
+						String date = LocalDate.parse(fieldContents.toString())
+								.atStartOfDay(ZoneId.systemDefault())
+								.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+						StringField sf = new StringField();
+						sf.set(date);
+						entity.addField(fieldKey, sf);
+					}else{
+						entity.addField(fieldKey, null);
+					}
+				} else if (fieldContents instanceof JSONObject) {
 					if (fieldContents != JSONObject.NULL) {
 						JSONObject field = (JSONObject) fieldContents;
 						addJSONObjectFieldToEntity(fieldKey, field, entity);
