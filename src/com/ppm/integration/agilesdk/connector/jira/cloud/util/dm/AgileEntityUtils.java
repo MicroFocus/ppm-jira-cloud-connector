@@ -33,6 +33,8 @@ import java.util.Map;
  */
 public class AgileEntityUtils {
 
+	private static final DateTimeFormatter FULL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
     public static JIRAAgileEntity getAgileEntityFromIssueJSon(Map<String, JIRAFieldInfo> fieldsInfo, JSONObject issueObj, String baseUrl) {
 
         JIRAAgileEntity entity = new JIRAAgileEntity();
@@ -140,7 +142,7 @@ public class AgileEntityUtils {
 					if (fieldContents != JSONObject.NULL) {
 						String date = LocalDate.parse(fieldContents.toString())
 								.atStartOfDay(ZoneId.systemDefault())
-								.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+								.format(FULL_DATE_FORMATTER);
 						StringField sf = new StringField();
 						sf.set(date);
 						entity.addField(fieldKey, sf);
