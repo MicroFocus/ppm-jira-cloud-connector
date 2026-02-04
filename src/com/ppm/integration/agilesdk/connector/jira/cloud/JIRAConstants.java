@@ -138,6 +138,10 @@ public class JIRAConstants {
     public static final String KEY_FIELD_TYPE_USER = "user";
     
     public static final String KEY_FIELD_TYPE_STRING = "string";
+
+    public static final String KEY_FIELD_TYPE_DATE_TIME = "datetime";
+
+    public static final String KEY_FIELD_TYPE_DATE = "date";
     
     public static final String KEY_FIELD_TYPE_NUMBER = "number";
     
