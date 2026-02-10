@@ -78,7 +78,9 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
                     || "user".equals(field.getType())
                     || "priority".equals(field.getType())
                     || "array".equals(field.getType()) 
-                    || "option".equals(field.getType())) {
+                    || "option".equals(field.getType())
+                    || "date".equals(field.getType())
+                    || "datetime".equals(field.getType())) {
 
                 if (field.isList() && !"user".equals(field.getType()) && !("array".equals(field.getType()) && "user".equals(field.getItems())) && (field.getAllowedValues()== null || field.getAllowedValues().isEmpty())) {
                     // We only allow to select lists that have some static value options or are users lists.
@@ -128,6 +130,10 @@ public class JIRACloudRequestIntegration extends RequestIntegration {
             case JIRAConstants.KEY_FIELD_TYPE_ARRAY:
             case JIRAConstants.KEY_FIELD_TYPE_PRIORITY:
                 return DATA_TYPE.ListNode.name();
+            case JIRAConstants.KEY_FIELD_TYPE_DATE:
+                return DATA_TYPE.DATE.name();
+            case JIRAConstants.KEY_FIELD_TYPE_DATE_TIME:
+                return DATA_TYPE.DATE_TIME.name();
             default :
                 return DATA_TYPE.STRING.name();                
         }
