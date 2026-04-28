@@ -22,14 +22,15 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 import org.apache.wink.client.ClientRuntimeException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public JIRACloudWorkPlanIntegration() {}
 
