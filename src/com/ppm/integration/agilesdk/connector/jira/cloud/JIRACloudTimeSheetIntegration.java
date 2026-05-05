@@ -23,14 +23,15 @@ import com.ppm.integration.agilesdk.tm.*;
 import com.ppm.integration.agilesdk.ui.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 import org.apache.wink.client.ClientRuntimeException;
 
 import com.ppm.integration.agilesdk.ValueSet;
 
 public class JIRACloudTimeSheetIntegration extends TimeSheetIntegration {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public List<ExternalWorkItem> getExternalWorkItems(TimeSheetIntegrationContext timesheetContext, ValueSet values) {

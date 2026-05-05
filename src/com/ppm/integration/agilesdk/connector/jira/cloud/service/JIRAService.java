@@ -18,8 +18,9 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.util.dm.AgileEntityUtil
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants;
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRAServiceProvider;
 import com.ppm.integration.agilesdk.provider.UserProvider;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wink.client.ClientResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +42,7 @@ public class JIRAService {
 
     private UserProvider userProvider = null;
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(JIRAService.class);
 
     private String baseUri;
 
