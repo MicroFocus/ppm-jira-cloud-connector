@@ -12,6 +12,7 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.model.*;
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.IRestConfig;
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.JIRARestConfig;
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.JiraRestWrapper;
+import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.RestResponse;
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception.RestRequestException;
 import com.ppm.integration.agilesdk.connector.jira.cloud.util.JiraIssuesRetrieverUrlBuilder;
 import com.ppm.integration.agilesdk.connector.jira.cloud.util.dm.AgileEntityUtils;
@@ -21,7 +22,6 @@ import com.ppm.integration.agilesdk.provider.UserProvider;
 import com.kintana.core.logging.LogManager;
 import com.kintana.core.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.apache.wink.client.ClientResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -300,12 +300,12 @@ public class JIRAService {
     }
 
     public String getMyselfInfo() {
-        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.MYSELF_SUFFIX);
+        RestResponse response = getWrapper().sendGet(baseUri + JIRAConstants.MYSELF_SUFFIX);
         return response.getEntity(String.class);
     }
 
     public List<JIRAProject> getProjects() {
-        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.PROJECT_SUFFIX);
+        RestResponse response = getWrapper().sendGet(baseUri + JIRAConstants.PROJECT_SUFFIX);
 
         String jsonStr = response.getEntity(String.class);
 
@@ -339,7 +339,7 @@ public class JIRAService {
             return allIssueTypes.stream().filter(it -> !it.hasScope()).collect(Collectors.toList());
         }
 
-        ClientResponse response = getWrapper().sendGet(url);
+        RestResponse response = getWrapper().sendGet(url);
 
         String jsonStr = response.getEntity(String.class);
 
@@ -380,7 +380,7 @@ public class JIRAService {
     }
 
     public JIRAProject getProject(String projectKey) {
-        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.PROJECT_SUFFIX + "/" + projectKey);
+        RestResponse response = getWrapper().sendGet(baseUri + JIRAConstants.PROJECT_SUFFIX + "/" + projectKey);
 
         String jsonStr = response.getEntity(String.class);
         try {
@@ -421,7 +421,7 @@ public class JIRAService {
 
         List<JIRASprint> jiraSprints = new ArrayList<JIRASprint>();
 
-        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.BOARD_SUFFIX + "/" + boardId + "/sprint");
+        RestResponse response = getWrapper().sendGet(baseUri + JIRAConstants.BOARD_SUFFIX + "/" + boardId + "/sprint");
 
         String jsonStr = response.getEntity(String.class);
 
@@ -484,7 +484,7 @@ public class JIRAService {
             throw new RuntimeException("Error when generating create Issue JSON Payload", e);
         }
 
-        ClientResponse response = getWrapper().sendPost(createIssueUri, createIssuePayload.toString(), 201);
+        RestResponse response = getWrapper().sendPost(createIssueUri, createIssuePayload.toString(), 201);
         String jsonStr = response.getEntity(String.class);
         try {
             JSONObject jsonObj = new JSONObject(jsonStr);
@@ -515,7 +515,7 @@ public class JIRAService {
             throw new RuntimeException("Error when generating update Issue JSON Payload", e);
         }
 
-        ClientResponse response = getWrapper().sendPut(updateIssueUri, updateIssuePayload.toString(), 204);
+        RestResponse response = getWrapper().sendPut(updateIssueUri, updateIssuePayload.toString(), 204);
         String jsonStr = response.getEntity(String.class);
 
         return issueKey;
@@ -615,7 +615,7 @@ public class JIRAService {
 
         customFields = new CustomFields();
 
-        ClientResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.JIRA_FIELDS_URL);
+        RestResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.JIRA_FIELDS_URL);
         try {
             JSONArray fields = new JSONArray(response.getEntity(String.class));
             for (int i = 0; i < fields.length(); i++) {
@@ -701,7 +701,7 @@ public class JIRAService {
         List<JIRAVersion> list = new ArrayList<JIRAVersion>();
         String query =
                 (baseUri + JIRAConstants.VERSIONS_SUFFIX).replace(JIRAConstants.REPLACE_PROJECT_KEY, projectKey);
-        ClientResponse response = getWrapper().sendGet(query);
+        RestResponse response = getWrapper().sendGet(query);
         String jsonStr = response.getEntity(String.class);
         JSONArray array = null;
         try {
@@ -803,7 +803,7 @@ public class JIRAService {
             fieldsInfo = getFields(projectKey, issueTypeId);
         }
 
-        ClientResponse response =
+        RestResponse response =
                 getWrapper().sendGet(baseUri + JIRAConstants.JIRA_REST_ISSUE_URL + issueKey);
 
         String jsonStr = response.getEntity(String.class);
@@ -913,7 +913,7 @@ public class JIRAService {
     }
 
     public List<JIRABoard> getAllBoards(String projectKey) {
-        ClientResponse response =
+        RestResponse response =
                 getWrapper().sendGet(baseUri + JIRAConstants.BOARD_SUFFIX + "?projectKeyOrId=" + projectKey);
 
         List<JIRABoard> boards = new ArrayList<JIRABoard>();
@@ -1167,7 +1167,7 @@ public class JIRAService {
 
     private IssueRetrievalResult runIssueRetrievalRequest(String urlString) {
 
-        ClientResponse response = getWrapper().sendGet(urlString);
+        RestResponse response = getWrapper().sendGet(urlString);
 
         String jsonStr = response.getEntity(String.class);
 
@@ -1352,7 +1352,7 @@ public class JIRAService {
 
     private JSONArray getWorklogsJSONArrayForIssue(String issueKey) {
 
-        ClientResponse response =
+        RestResponse response =
                 getWrapper().sendGet(baseUri + JIRAConstants.JIRA_GET_ISSUE_WORKLOG.replace("%issue%", issueKey));
 
         String jsonStr = response.getEntity(String.class);
@@ -1639,7 +1639,7 @@ public class JIRAService {
             url = baseUri + JIRAConstants.CREATEMETA_SUFFIX + "?issuetypeIds="+issuetypeId+"&expand=projects.issuetypes.fields";
         }
 
-        ClientResponse response = getWrapper().sendGet(url);
+        RestResponse response = getWrapper().sendGet(url);
 
         String jsonStr = response.getEntity(String.class);
 
@@ -1693,7 +1693,7 @@ public class JIRAService {
      */
     public String getAccountIdFromLogonUsername(String logonUsername) {
 
-        ClientResponse response = getWrapper().sendGet(baseUri + JIRAConstants.SEARCH_USER + "?query=" + logonUsername);
+        RestResponse response = getWrapper().sendGet(baseUri + JIRAConstants.SEARCH_USER + "?query=" + logonUsername);
         String jsonStr = response.getEntity(String.class);
 
         try {
@@ -1728,7 +1728,7 @@ public class JIRAService {
 
         // In Jira Cloud we cannot search based on username, so we use the generic "query" search
         // and hope that one user can be uniquely identified by their email.
-        ClientResponse response =
+        RestResponse response =
                 getWrapper().sendGet(baseUri + JIRAConstants.SEARCH_USER + "?query=" + jiraUserSearch);
         String jsonStr = response.getEntity(String.class);
 
@@ -1800,7 +1800,7 @@ public class JIRAService {
 
 
     private void initPortfolioHierarchyInfo() {
-        ClientResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.PORTFOLIO_HIERARCHY_REST);
+        RestResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.PORTFOLIO_HIERARCHY_REST);
         String jsonStr = response.getEntity(String.class);
 
         portfolioHierarchyLevelsInfo = new ArrayList<>();
@@ -1834,7 +1834,7 @@ public class JIRAService {
         subTasksIssueTypeNames = new HashSet<>();
         allIssueTypes = new ArrayList<>();
 
-        ClientResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.ISSUE_TYPES);
+        RestResponse response = adminWrapper.sendGet(baseUri + JIRAConstants.ISSUE_TYPES);
         String jsonStr = response.getEntity(String.class);
 
         try {

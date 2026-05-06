@@ -1,4 +1,3 @@
-
 /*
  * © Copyright 2019 - 2020 Micro Focus or one of its affiliates.
  */
@@ -25,7 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.kintana.core.logging.LogManager;
 import com.kintana.core.logging.Logger;
-import org.apache.wink.client.ClientRuntimeException;
+import org.springframework.web.client.RestClientException;
 
 import com.ppm.integration.agilesdk.ValueSet;
 
@@ -412,7 +411,7 @@ public class JIRACloudTimeSheetIntegration extends TimeSheetIntegration {
                         List<JIRAProject> list = new ArrayList<>();
                         try {
                             list = JIRAServiceProvider.get(values).useNonAdminAccount().getProjects();
-                        } catch (ClientRuntimeException | RestRequestException e) {
+                        } catch (RestClientException | RestRequestException e) {
                             new JIRAConnectivityExceptionHandler().uncaughtException(Thread.currentThread(), e,
                                     JIRACloudTimeSheetIntegration.class);
                         } catch (RuntimeException e) {
