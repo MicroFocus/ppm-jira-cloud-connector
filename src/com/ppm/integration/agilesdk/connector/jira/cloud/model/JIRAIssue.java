@@ -1,4 +1,3 @@
-
 /*
  * © Copyright 2019 - 2020 Micro Focus or one of its affiliates.
  */
@@ -7,7 +6,7 @@ package com.ppm.integration.agilesdk.connector.jira.cloud.model;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudWorkPlanIntegration;
 import com.ppm.integration.agilesdk.pm.ExternalTask;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.List;

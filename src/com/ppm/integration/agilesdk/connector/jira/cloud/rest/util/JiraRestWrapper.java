@@ -1,4 +1,3 @@
-
 /*
  * © Copyright 2019 - 2020 Micro Focus or one of its affiliates.
  */
@@ -6,7 +5,7 @@
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception.RestRequestException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -188,4 +187,3 @@ public class JiraRestWrapper {
         checkResponseStatus(-1, response, uri, verb, payload, uuid);
     }
 }
-

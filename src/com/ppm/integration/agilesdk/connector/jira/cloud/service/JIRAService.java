@@ -21,7 +21,7 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.JIRAServiceProvider;
 import com.ppm.integration.agilesdk.provider.UserProvider;
 import com.kintana.core.logging.LogManager;
 import com.kintana.core.logging.Logger;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -20,7 +20,7 @@ import com.ppm.integration.agilesdk.ui.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import com.kintana.core.logging.LogManager;
 import com.kintana.core.logging.Logger;
 import org.springframework.web.client.RestClientException;
