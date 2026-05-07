@@ -5,15 +5,18 @@
 
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
-import org.apache.wink.client.ClientConfig;
-
+/**
+ * Configuration interface for REST client settings.
+ */
 public interface IRestConfig {
 
-    ClientConfig setProxy(String proxyHost, String proxyPort);
+    IRestConfig setProxy(String proxyHost, String proxyPort);
 
     void setBasicAuthorizationCredentials(String username, String password);
 
     String getBasicAuthorizationToken();
 
-    ClientConfig getClientConfig();
+    String getProxyHost();
+
+    int getProxyPort();
 }

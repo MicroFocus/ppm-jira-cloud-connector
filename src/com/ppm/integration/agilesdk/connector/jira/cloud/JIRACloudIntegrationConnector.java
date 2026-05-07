@@ -16,7 +16,8 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAProject;
 import com.ppm.integration.agilesdk.model.AgileProject;
 import com.ppm.integration.agilesdk.ui.*;
 
-import org.apache.log4j.Logger;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 
 /**
  * Main Connector class file for Jira Cloud connector.
@@ -24,7 +25,7 @@ import org.apache.log4j.Logger;
  */
 public class JIRACloudIntegrationConnector extends IntegrationConnector {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public String getExternalApplicationName() {

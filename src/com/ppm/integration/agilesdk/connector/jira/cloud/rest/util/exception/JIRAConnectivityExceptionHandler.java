@@ -1,4 +1,3 @@
-
 /*
  * © Copyright 2019 - 2020 Micro Focus or one of its affiliates.
  */
@@ -8,7 +7,7 @@ package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import com.ppm.integration.agilesdk.provider.Providers;
-import org.apache.wink.client.ClientRuntimeException;
+import org.springframework.web.client.RestClientException;
 
 import com.ppm.integration.IntegrationException;
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRACloudIntegrationConnector;
@@ -20,8 +19,8 @@ public class JIRAConnectivityExceptionHandler implements UncaughtExceptionHandle
     }
 
     public void uncaughtException(Thread t, Throwable e, Class cls) {
-        if (e instanceof ClientRuntimeException) {
-            handleClientRuntimeException((ClientRuntimeException)e, cls);
+        if (e instanceof RestClientException) {
+            handleClientRuntimeException((RestClientException)e, cls);
         } else if (e instanceof RestRequestException) {
             handleClientException((RestRequestException)e, cls);
         } else {
