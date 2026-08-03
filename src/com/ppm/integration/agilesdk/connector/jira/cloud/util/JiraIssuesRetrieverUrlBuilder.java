@@ -5,7 +5,7 @@
 package com.ppm.integration.agilesdk.connector.jira.cloud.util;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 

@@ -13,7 +13,7 @@ import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAAgileEntity;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAFieldInfo;
 import com.ppm.integration.agilesdk.connector.jira.cloud.model.JIRAIssueType;
 import com.ppm.integration.agilesdk.connector.jira.cloud.service.JIRAService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
