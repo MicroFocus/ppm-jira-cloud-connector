@@ -4,6 +4,7 @@
 
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -22,7 +23,8 @@ public class RestResponse {
      * Get HTTP status code
      */
     public int getStatusCode() {
-        return responseEntity.getStatusCode().value();
+        HttpStatusCode statusCode = responseEntity.getStatusCode();
+        return statusCode.value();
     }
     
     /**

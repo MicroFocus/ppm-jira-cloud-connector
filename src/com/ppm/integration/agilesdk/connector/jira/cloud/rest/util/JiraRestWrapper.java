@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -183,7 +184,8 @@ public class JiraRestWrapper {
      */
     private void handleSpringHttpException(HttpClientErrorException e, String uri, String verb, 
                                           String payload, String uuid) {
-        RestResponse response = new RestResponse(ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString()));
+        HttpStatusCode statusCode = e.getStatusCode();
+        RestResponse response = new RestResponse(ResponseEntity.status(statusCode).body(e.getResponseBodyAsString()));
         checkResponseStatus(-1, response, uri, verb, payload, uuid);
     }
 }
