@@ -434,7 +434,7 @@ public class JIRAService {
                 JSONObject jsonSprint = sprints.getJSONObject(i);
 
                 JIRASprint jiraSprint = new JIRASprint();
-                jiraSprint.setKey(jsonSprint.getString("id"));
+                jiraSprint.setKey(getIdAsString(jsonSprint, "id"));
                 jiraSprint.setState(jsonSprint.getString("state"));
                 jiraSprint.setName(jsonSprint.getString("name"));
                 jiraSprint.setStartDate(getStr(jsonSprint, "startDate"));
@@ -758,7 +758,10 @@ public class JIRAService {
             JSONArray fixVersions = fields.getJSONArray("fixVersions");
             for (int i = 0; i < fixVersions.length(); i++) {
                 JSONObject fixVersion = fixVersions.getJSONObject(i);
-                fixVersionsIds.add(fixVersion.getString("id"));
+                String fixVersionId = getIdAsString(fixVersion, "id");
+                if (fixVersionId != null) {
+                    fixVersionsIds.add(fixVersionId);
+                }
             }
         } catch (JSONException e) {
             return null;
@@ -927,7 +930,7 @@ public class JIRAService {
                 JSONObject jsonBoard = boardsArray.getJSONObject(i);
 
                 JIRABoard board = new JIRABoard();
-                board.setId(jsonBoard.getString("id"));
+                board.setId(getIdAsString(jsonBoard, "id"));
                 board.setKey(board.getId());
                 board.setType(getStr(jsonBoard, "type"));
                 board.setName(jsonBoard.getString("name"));
@@ -952,6 +955,27 @@ public class JIRAService {
             return obj.getString(key);
         } catch (JSONException e) {
             throw new RuntimeException("Error when retrieving key " + key + " from JSon object " + obj.toString());
+        }
+    }
+
+    /**
+     * Safely retrieves a JSON id field as a String, regardless of whether Jira returned it
+     * as a JSON integer (e.g. 34) or a JSON string (e.g. "customfield_10014").
+     * Returns null if the field is absent or null.
+     */
+    private String getIdAsString(JSONObject obj, String key) {
+        if (obj == null || !obj.has(key) || obj.isNull(key)) {
+            return null;
+        }
+        Object value = obj.get(key);
+        if (value instanceof Integer) {
+            return String.valueOf((Integer) value);
+        } else if (value instanceof Long) {
+            return String.valueOf((Long) value);
+        } else if (value instanceof String) {
+            return (String) value;
+        } else {
+            return String.valueOf(value);
         }
     }
 
@@ -1213,7 +1237,7 @@ public class JIRAService {
             // Common fields for all issues
             issue.setType(issueType);
 
-            issue.setTypeId(fields.getJSONObject("issuetype").getString("id"));
+            issue.setTypeId(getIdAsString(fields.getJSONObject("issuetype"), "id"));
 
             if (fields.has("status") && !fields.isNull("status") && fields.getJSONObject("status").has("name")) {
                 issue.setStatus(fields.getJSONObject("status").getString("name"));
@@ -1335,7 +1359,7 @@ public class JIRAService {
             Object sprintJson = sprintCustomfields.get(0);
             if (sprintJson instanceof JSONObject) {
                 JSONObject sprint = (JSONObject)sprintJson;
-                id = sprint.getString("id");
+                id = getIdAsString(sprint, "id");
                 String state = sprint.getString("state");
                 isActiveOrFutureSprint =
                         "ACTIVE".equalsIgnoreCase(state) || "FUTURE".equalsIgnoreCase(state);
