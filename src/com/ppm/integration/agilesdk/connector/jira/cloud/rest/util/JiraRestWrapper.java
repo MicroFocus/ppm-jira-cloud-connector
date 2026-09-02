@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,13 +36,14 @@ public class JiraRestWrapper {
      * Create a RestTemplate with proxy configuration if needed
      */
     private RestTemplate createRestTemplate(IRestConfig config) {
-        RestTemplate template = new RestTemplate();
-        
-        // Spring RestTemplate's HttpClient factory will be configured with proxy
-        // if proxyHost and proxyPort are set in config
-        // This is handled at the HttpClientFactory level when needed
-        
-        return template;
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+
+        if (config != null && StringUtils.isNotBlank(config.getProxyHost()) && config.getProxyPort() > 0) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP,
+                new InetSocketAddress(config.getProxyHost(), config.getProxyPort()));
+            requestFactory.setProxy(proxy);
+        }
+        return new RestTemplate(requestFactory);
     }
 
     /**
