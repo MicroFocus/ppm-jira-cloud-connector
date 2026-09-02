@@ -1,4 +1,3 @@
-
 /*
  * © Copyright 2019 - 2020 Micro Focus or one of its affiliates.
  */
@@ -21,15 +20,16 @@ import com.ppm.integration.agilesdk.ui.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.wink.client.ClientRuntimeException;
+import org.apache.commons.lang3.StringUtils;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
+import org.springframework.web.client.RestClientException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public JIRACloudWorkPlanIntegration() {}
 
@@ -106,7 +106,7 @@ public class JIRACloudWorkPlanIntegration extends WorkPlanIntegration {
                         List<JIRAProject> list = new ArrayList<>();
                         try {
                             list = service.getProjects();
-                        } catch (ClientRuntimeException | RestRequestException e) {
+                        } catch (RestClientException | RestRequestException e) {
                             logger.error("", e);
                             new JIRAConnectivityExceptionHandler().uncaughtException(Thread.currentThread(), e,
                                     JIRACloudWorkPlanIntegration.class);

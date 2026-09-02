@@ -5,8 +5,10 @@
 package com.ppm.integration.agilesdk.connector.jira.cloud.util;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -130,17 +132,11 @@ public class JiraIssuesRetrieverUrlBuilder {
             urlParameters.add("jql=" + jql);
         }
 
-        searchUrl.append(encodeUrl(StringUtils.join(urlParameters, "&")));
+        searchUrl.append(StringUtils.join(urlParameters, "&"));
 
         return searchUrl.toString();
 
     }
-
-    private String encodeUrl(String url) {
-        return url.replaceAll(" ", "%20").replaceAll(">", "%3E").replaceAll("<", "%3C").replaceAll("-", "%2D")
-                .replaceAll("!", "%21");
-    }
-
     private String getJQLString() {
         List<String> constraints = new ArrayList<String>(andConstraints);
 

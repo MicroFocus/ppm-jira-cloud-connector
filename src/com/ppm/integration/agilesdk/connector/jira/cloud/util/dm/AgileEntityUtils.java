@@ -16,15 +16,17 @@ import com.ppm.integration.agilesdk.dm.StringField;
 import com.ppm.integration.agilesdk.dm.UserField;
 import com.ppm.integration.agilesdk.provider.Providers;
 import com.ppm.integration.agilesdk.provider.UserProvider;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -188,7 +190,7 @@ public class AgileEntityUtils {
                         updated = updated.substring(0, 26) + ":" + updated.substring(26);
                     }
 
-                    entity.setLastUpdateTime(javax.xml.bind.DatatypeConverter.parseDateTime(updated).getTime());
+                    entity.setLastUpdateTime(Date.from(OffsetDateTime.parse(updated).toInstant()));
                 }
             }
 

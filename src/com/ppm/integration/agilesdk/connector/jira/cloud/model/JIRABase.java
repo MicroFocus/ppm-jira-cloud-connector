@@ -4,8 +4,9 @@
 
 package com.ppm.integration.agilesdk.connector.jira.cloud.model;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +20,7 @@ import static com.ppm.integration.agilesdk.connector.jira.cloud.JIRAConstants.NU
  */
 public class JIRABase {
 
-    protected final Logger logger = Logger.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private SimpleDateFormat DATE_ONLY_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat FULL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
