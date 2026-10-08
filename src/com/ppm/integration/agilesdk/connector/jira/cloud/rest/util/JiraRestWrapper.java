@@ -5,6 +5,7 @@
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception.RestRequestException;
+import com.ppm.integration.agilesdk.connector.jira.cloud.service.JIRAService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import com.kintana.core.logging.LogManager;
+import com.kintana.core.logging.Logger;
 
 import java.net.*;
 import java.util.UUID;
@@ -26,6 +29,8 @@ public class JiraRestWrapper {
 
     private RestTemplate restTemplate;
     private IRestConfig config;
+
+    private final Logger logger = LogManager.getLogger(JIRAService.class);
 
     public JiraRestWrapper(IRestConfig config) {
         this.config = config;
@@ -115,8 +120,8 @@ public class JiraRestWrapper {
             } else {
                 throw new RestRequestException(400, "Unsupported HTTP method: " + method);
             }
-            
-            RestResponse restResponse = new RestResponse(response);
+
+            RestResponse restResponse = new RestResponse(jsonIncludeNonNull(response));
             checkResponseStatus(expectedStatusCode, restResponse, uri, method.toString(), payload, uuid);
             
             return restResponse;
@@ -132,6 +137,23 @@ public class JiraRestWrapper {
         } catch (Exception e) {
             throw new RestRequestException(500, "Request failed: " + e.getMessage());
         }
+    }
+
+    private ResponseEntity<String> jsonIncludeNonNull(ResponseEntity<String> response) {
+        try {
+            if (response.getBody() != null && !response.getBody().trim().isEmpty()) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                mapper.setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+
+                Object parsedBody = mapper.readValue(response.getBody(), Object.class);
+                response = ResponseEntity.status(response.getStatusCode())
+                        .headers(response.getHeaders())
+                        .body(mapper.writeValueAsString(parsedBody));
+            }
+        } catch (Exception e) {
+            logger.debug("Error on Parsing data to remove null values from response body: " + e.getMessage(), e);
+        }
+        return response;
     }
 
     /**
