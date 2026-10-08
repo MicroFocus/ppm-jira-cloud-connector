@@ -5,7 +5,6 @@
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception.RestRequestException;
-import com.ppm.integration.agilesdk.connector.jira.cloud.service.JIRAService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +29,7 @@ public class JiraRestWrapper {
     private RestTemplate restTemplate;
     private IRestConfig config;
 
-    private final Logger logger = LogManager.getLogger(JIRAService.class);
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public JiraRestWrapper(IRestConfig config) {
         this.config = config;
