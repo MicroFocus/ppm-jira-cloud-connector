@@ -37,6 +37,11 @@ public class AgileEntityUtils {
 
 	private static final DateTimeFormatter FULL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
+	private static String getJsonValueAsString(JSONObject obj, String key) throws JSONException {
+		Object value = obj.get(key);
+		return value == null ? null : String.valueOf(value);
+	}
+
     public static JIRAAgileEntity getAgileEntityFromIssueJSon(Map<String, JIRAFieldInfo> fieldsInfo, JSONObject issueObj, String baseUrl) {
 
         JIRAAgileEntity entity = new JIRAAgileEntity();
@@ -54,7 +59,7 @@ public class AgileEntityUtils {
 					if (fieldContents != JSONObject.NULL) {
 						JSONObject field = (JSONObject) fieldContents;
 						ListNode listNode = new ListNode();
-						listNode.setId(field.has("id") ? field.getString("id") : null);
+						listNode.setId(getJsonValueAsString(field, "id"));
 						if(fieldInfo.getType().equalsIgnoreCase(JIRAConstants.KEY_FIELD_TYPE_PRIORITY)){
 							listNode.setName(field.has("name") ? field.getString("name") : null);
 						} else {
@@ -113,7 +118,7 @@ public class AgileEntityUtils {
 				    			continue;
 				    		}
 							JSONObject field = (JSONObject) fieldList.get(i);
-							String id = field.has("id") ? field.getString("id") : null;
+							String id = getJsonValueAsString(field, "id");
 							String value = field.has("value") ? field.getString("value") : null;
 							if (id != null && value != null) {
 								if(ids == ""){

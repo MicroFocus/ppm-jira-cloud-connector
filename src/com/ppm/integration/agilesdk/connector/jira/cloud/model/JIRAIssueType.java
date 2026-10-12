@@ -25,7 +25,8 @@ public class JIRAIssueType {
         try {
             JIRAIssueType issueType = new JIRAIssueType();
             issueType.setName(obj.getString("name"));
-            issueType.setId(obj.getString("id"));
+              Object idValue = obj.opt("id");
+              issueType.setId(idValue == null ? null : String.valueOf(idValue));
             issueType.setDescription(obj.getString("description"));
             issueType.setSubTask(obj.has("subtask") ? obj.getBoolean("subtask") : false);
             issueType.setHasScope(obj.has("scope"));

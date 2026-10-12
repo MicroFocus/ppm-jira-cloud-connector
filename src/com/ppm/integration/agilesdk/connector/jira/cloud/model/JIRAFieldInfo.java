@@ -51,7 +51,8 @@ public class JIRAFieldInfo {
                         } else if (listValueObj.has("value")) {
                             value = listValueObj.getString("value");
                         }
-                        listValue.setId(listValueObj.getString("id"));
+                          Object idValue = listValueObj.opt("id");
+                          listValue.setId(listValueObj.opt("id") == null ? null : String.valueOf(idValue));
                         listValue.setName(value);
                         fieldInfo.getAllowedValues().add(listValue);
                     }
