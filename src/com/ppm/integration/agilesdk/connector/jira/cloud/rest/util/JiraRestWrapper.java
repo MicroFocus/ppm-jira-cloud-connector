@@ -4,6 +4,8 @@
 
 package com.ppm.integration.agilesdk.connector.jira.cloud.rest.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ppm.integration.agilesdk.connector.jira.cloud.rest.util.exception.RestRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -141,8 +143,8 @@ public class JiraRestWrapper {
     private ResponseEntity<String> jsonIncludeNonNull(ResponseEntity<String> response) {
         try {
             if (response.getBody() != null && !response.getBody().trim().isEmpty()) {
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                mapper.setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
                 Object parsedBody = mapper.readValue(response.getBody(), Object.class);
                 response = ResponseEntity.status(response.getStatusCode())
